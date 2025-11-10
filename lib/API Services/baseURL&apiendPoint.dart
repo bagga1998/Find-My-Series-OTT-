@@ -13,7 +13,7 @@ class ApiConstants {
   // Register end-point
   static const String register = "$baseUrls/auth/register";
 
-  // Preferred Language List end-point
+
   static const String preferredLanguageList = "$baseUrls/language";
 
   // Save user preferred language
@@ -21,12 +21,37 @@ class ApiConstants {
 
   // Get user preferred language
   static const String getSavedPreferredLanguage = "$baseUrls/userlanguage";
+  
+
+
+
+
+
+
+
 
   // Preferred Genres List end-point
   static const String preferredGenresList = "$baseUrls/categories";
 
+  // Save Preferred Genres end-point
+  static const String savePreferredGenres = "$baseUrls/usergenres/save";
+
+
+
+
+
+
+
+
+
+
+
+
   // Preferred Genres List end-point
   static const String preferredPlatforms = "$baseUrls/platforms";
+
+  // Preferred Genres List end-point
+  static const String savePreferredPlatforms = "$baseUrls/userplatforms/save";
 
   // Get Popular Celebrities
   static const String popularCelebrities = "$baseUrls/celebrities";

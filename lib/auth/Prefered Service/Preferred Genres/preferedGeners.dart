@@ -9,6 +9,7 @@ import 'package:find_my_series/widgets/font-styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import 'package:shimmer/shimmer.dart';
 
 class Preferedgeners extends StatefulWidget {
   const Preferedgeners({super.key});
@@ -19,8 +20,6 @@ class Preferedgeners extends StatefulWidget {
 
 class _PreferedgenersState extends State<Preferedgeners> {
   final PreferredGenrescontroller objPreferredGenrescontroller = Get.put(PreferredGenrescontroller());
-  
-  bool isSelected = true;
 
   @override
   void initState() {
@@ -55,19 +54,20 @@ class _PreferedgenersState extends State<Preferedgeners> {
           end: Alignment.bottomRight,
           colors: [Color(0xFF161218), Color(0xFF2B1D34)],
         ),
-        actions:  [
+        actions: [
           Padding(
-            padding: EdgeInsets.only(right: 16.0),
+            padding: const EdgeInsets.only(right: 16.0),
             child: Center(
               child: CustomText(
-               text: 'Next',
+                text: 'Next',
                 color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  fontFamily: 'DM Sans',
-                  onTap: (){
-                    Get.to(bottomNavBar());
-                  },
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                fontFamily: 'DM Sans',
+                onTap: () async {
+                  await objPreferredGenrescontroller.saveSelectedGenres(context);
+                  Get.to(bottomNavBar());
+                },
               ),
             ),
           ),
@@ -83,74 +83,132 @@ class _PreferedgenersState extends State<Preferedgeners> {
           Padding(
             padding: EdgeInsets.symmetric(horizontal: width * 0.04),
             child: Obx(() {
-              if(objPreferredGenrescontroller.isLoading.value){
-                return Center(
-                  child: CircularProgressIndicator(
-                    color: OTTColors.buttoncolour,
-                  ),
+              if (objPreferredGenrescontroller.isLoading.value &&
+                  objPreferredGenrescontroller.preferredGenresList.isEmpty) {
+                // 🔹 Shimmer loading
+                return ListView.builder(
+                  itemCount: 6,
+                  itemBuilder: (context, index) {
+                    return Container(
+                      margin: EdgeInsets.only(bottom: height * 0.015),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.05),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: Colors.white.withOpacity(0.1),
+                        ),
+                      ),
+                      child: Shimmer.fromColors(
+                        baseColor: Colors.grey.shade800,
+                        highlightColor: Colors.grey.shade600,
+                        child: Row(
+                          children: [
+                            Container(
+                              margin: const EdgeInsets.all(8),
+                              height: height * 0.12,
+                              width: height * 0.10,
+                              decoration: BoxDecoration(
+                                color: Colors.white24,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            SizedBox(width: width * 0.03),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Container(
+                                    height: 16,
+                                    width: width * 0.4,
+                                    color: Colors.white24,
+                                  ),
+                                  SizedBox(height: height * 0.01),
+                                  Container(
+                                    height: 14,
+                                    width: width * 0.3,
+                                    color: Colors.white24,
+                                  ),
+                                  SizedBox(height: height * 0.01),
+                                  Container(
+                                    height: 14,
+                                    width: width * 0.25,
+                                    color: Colors.white24,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            SizedBox(width: width * 0.03),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
                 );
-              } return SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(height: height * 0.03),
-                  CustomText(
-                    text: "Preferred Genres",
-                    color: const Color(0xFF9B51E0),
-                    fontSize: width * 0.075,
-                    fontWeight: FontWeight.w700,
-                    fontFamily: 'DM Sans',
-                  ),
-                  SizedBox(height: height * 0.01),
-                  CustomText(
-                    text:
-                        "Choose your categories of movies and shows you like to customize your experience.",
-                    color: OTTColors.white,
-                    fontSize: width * 0.045,
-                    fontWeight: FontWeight.w400,
-                    fontFamily: 'DM Sans',
-                  ),
-                  SizedBox(height: height * 0.03),
-                  Row(
-                    children: [
-                      CustomText(
-                        text: "SELECTED: ${objPreferredGenrescontroller.selectedGenres.length}",
-                        color: Colors.white54,
-                        fontSize: width * 0.04,
-                        fontWeight: FontWeight.w400,
-                        fontFamily: 'DM Sans',
-                      ),
-                      const Spacer(),
-                      CustomText(
-                        text: "TOTAL: ${objPreferredGenrescontroller.preferredGenresList.length}",
-                        color: Colors.white54,
-                        fontSize: width * 0.04,
-                        fontWeight: FontWeight.w400,
-                        fontFamily: 'DM Sans',
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: height * 0.02),
+              }
 
-                  // Service Card
-                  ListView.builder(
+              // 🔹 Main List UI
+              return SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(height: height * 0.03),
+                    CustomText(
+                      text: "Preferred Genres",
+                      color: const Color(0xFF9B51E0),
+                      fontSize: width * 0.075,
+                      fontWeight: FontWeight.w700,
+                      fontFamily: 'DM Sans',
+                    ),
+                    SizedBox(height: height * 0.01),
+                    CustomText(
+                      text:
+                          "Choose your categories of movies and shows you like to customize your experience.",
+                      color: OTTColors.white,
+                      fontSize: width * 0.045,
+                      fontWeight: FontWeight.w400,
+                      fontFamily: 'DM Sans',
+                    ),
+                    SizedBox(height: height * 0.03),
+                    Row(
+                      children: [
+                        CustomText(
+                          text:
+                              "SELECTED: ${objPreferredGenrescontroller.selectedGenres.length}",
+                          color: Colors.white54,
+                          fontSize: width * 0.04,
+                          fontWeight: FontWeight.w400,
+                          fontFamily: 'DM Sans',
+                        ),
+                        const Spacer(),
+                        CustomText(
+                          text:
+                              "TOTAL: ${objPreferredGenrescontroller.preferredGenresList.length}",
+                          color: Colors.white54,
+                          fontSize: width * 0.04,
+                          fontWeight: FontWeight.w400,
+                          fontFamily: 'DM Sans',
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: height * 0.02),
+
+                    // 🔹 Genre Cards
+                    ListView.builder(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
-                      itemCount: objPreferredGenrescontroller.preferredGenresList.length,
+                      itemCount:
+                          objPreferredGenrescontroller.preferredGenresList.length,
                       itemBuilder: (context, index) {
-                        final lang = objPreferredGenrescontroller.preferredGenresList[index];
-                        final isSelected = objPreferredGenrescontroller.selectedGenres
+                        final lang =
+                            objPreferredGenrescontroller.preferredGenresList[index];
+                        final isSelected = objPreferredGenrescontroller
+                            .selectedGenres
                             .contains(lang.name);
 
                         return GestureDetector(
                           onTap: () {
-                            if (isSelected) {
-                              objPreferredGenrescontroller.selectedGenres
-                                  .remove(lang.name);
-                            } else {
-                              objPreferredGenrescontroller.selectedGenres
-                                  .add(lang.name);
-                            }
+                            objPreferredGenrescontroller.toggleGenres(
+                                lang.name ?? "", lang.id ?? 0);
                           },
                           child: Container(
                             margin:
@@ -158,8 +216,7 @@ class _PreferedgenersState extends State<Preferedgeners> {
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(10),
                               child: BackdropFilter(
-                                filter:
-                                    ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                                filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
                                 child: Container(
                                   width: double.infinity,
                                   padding: EdgeInsets.symmetric(
@@ -185,8 +242,7 @@ class _PreferedgenersState extends State<Preferedgeners> {
                                     children: [
                                       CustomText(
                                         text: lang.name ?? "Unknown",
-                                        color:
-                                            OTTColors.preferredServices ,
+                                        color: OTTColors.preferredServices,
                                         fontSize: 18,
                                         fontWeight: FontWeight.w400,
                                       ),
@@ -210,13 +266,12 @@ class _PreferedgenersState extends State<Preferedgeners> {
                         );
                       },
                     ),
-                   
-                  SizedBox(height: height * 0.04),
-                ],
-              ),
-            );
-          
-            },)
+
+                    SizedBox(height: height * 0.04),
+                  ],
+                ),
+              );
+            }),
           ),
         ],
       ),

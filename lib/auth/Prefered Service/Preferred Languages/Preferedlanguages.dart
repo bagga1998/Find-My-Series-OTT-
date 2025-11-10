@@ -9,6 +9,7 @@ import 'package:find_my_series/widgets/font-styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import 'package:shimmer/shimmer.dart';
 
 class Preferedlanguages extends StatefulWidget {
   const Preferedlanguages({super.key});
@@ -92,9 +93,67 @@ class _PreferedlanguagesState extends State<Preferedlanguages> {
             padding: EdgeInsets.symmetric(horizontal: width * 0.04),
             child: Obx(() {
               if (controller.isLoading.value) {
-                return const Center(
-                  child: CircularProgressIndicator(color: Colors.purpleAccent),
-                );
+                 return ListView.builder(
+                    itemCount: 6, // number of shimmer placeholders
+                    itemBuilder: (context, index) {
+                      return Container(
+                        margin: EdgeInsets.only(bottom: height * 0.015),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.05),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: Colors.white.withOpacity(0.1),
+                          ),
+                        ),
+                        child: Shimmer.fromColors(
+                          baseColor: Colors.grey.shade800,
+                          highlightColor: Colors.grey.shade600,
+                          child: Row(
+                            children: [
+                              // Shimmer Image Placeholder
+                              Container(
+                                margin: EdgeInsets.all(8),
+                                height: height * 0.12,
+                                width: height * 0.10,
+                                decoration: BoxDecoration(
+                                  color: Colors.white24,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              SizedBox(width: width * 0.03),
+
+                              // Shimmer Text Section
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Container(
+                                      height: 16,
+                                      width: width * 0.4,
+                                      color: Colors.white24,
+                                    ),
+                                    SizedBox(height: height * 0.01),
+                                    Container(
+                                      height: 14,
+                                      width: width * 0.3,
+                                      color: Colors.white24,
+                                    ),
+                                    SizedBox(height: height * 0.01),
+                                    Container(
+                                      height: 14,
+                                      width: width * 0.25,
+                                      color: Colors.white24,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              SizedBox(width: width * 0.03),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  );
               }
 
               return SingleChildScrollView(

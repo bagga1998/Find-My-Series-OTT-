@@ -1,7 +1,6 @@
-// ignore_for_file: deprecated_member_use
+// ignore_for_file: deprecated_member_use, use_build_context_synchronously
 
 import 'dart:ui';
-import 'package:find_my_series/API%20Services/baseURL&apiendPoint.dart';
 import 'package:find_my_series/auth/Prefered%20Service/Preferred%20Languages/Preferedlanguages.dart';
 import 'package:find_my_series/auth/Prefered%20Service/Preferred%20Services/preferedServicesController.dart';
 import 'package:find_my_series/widgets/appBar.dart';
@@ -10,6 +9,7 @@ import 'package:find_my_series/widgets/font-styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import 'package:shimmer/shimmer.dart';
 
 class Preferedservices1 extends StatefulWidget {
   const Preferedservices1({super.key});
@@ -25,7 +25,9 @@ class _Preferedservices1State extends State<Preferedservices1> {
   @override
   void initState() {
     super.initState();
-    objGetAllpreferredPlatforms.fetchPreferredPlatforms(context);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      objGetAllpreferredPlatforms.fetchPreferredPlatforms(context);
+    });
   }
 
   @override
@@ -65,7 +67,9 @@ class _Preferedservices1State extends State<Preferedservices1> {
                 fontSize: width * 0.045,
                 fontWeight: FontWeight.w600,
                 fontFamily: 'DM Sans',
-                onTap: () {
+                onTap: () async {
+                  await objGetAllpreferredPlatforms
+                      .saveSelectedPlatforms(context);
                   Get.to(const Preferedlanguages());
                 },
               ),
@@ -85,10 +89,63 @@ class _Preferedservices1State extends State<Preferedservices1> {
             padding: EdgeInsets.symmetric(horizontal: width * 0.04),
             child: Obx(() {
               if (objGetAllpreferredPlatforms.isLoading.value) {
-                return Center(
-                  child: CircularProgressIndicator(
-                    color: OTTColors.buttoncolour,
-                  ),
+                return ListView.builder(
+                  itemCount: 6,
+                  itemBuilder: (context, index) {
+                    return Container(
+                      margin: EdgeInsets.only(bottom: height * 0.015),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.05),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: Colors.white.withOpacity(0.1),
+                        ),
+                      ),
+                      child: Shimmer.fromColors(
+                        baseColor: Colors.grey.shade800,
+                        highlightColor: Colors.grey.shade600,
+                        child: Row(
+                          children: [
+                            Container(
+                              margin: const EdgeInsets.all(8),
+                              height: height * 0.12,
+                              width: height * 0.10,
+                              decoration: BoxDecoration(
+                                color: Colors.white24,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            SizedBox(width: width * 0.03),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Container(
+                                    height: 16,
+                                    width: width * 0.4,
+                                    color: Colors.white24,
+                                  ),
+                                  SizedBox(height: height * 0.01),
+                                  Container(
+                                    height: 14,
+                                    width: width * 0.3,
+                                    color: Colors.white24,
+                                  ),
+                                  SizedBox(height: height * 0.01),
+                                  Container(
+                                    height: 14,
+                                    width: width * 0.25,
+                                    color: Colors.white24,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            SizedBox(width: width * 0.03),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
                 );
               }
 
@@ -151,7 +208,7 @@ class _Preferedservices1State extends State<Preferedservices1> {
                     ),
                     SizedBox(height: height * 0.02),
 
-                    // 🔹 Display Platforms Dynamically
+                    /// 🔹 Dynamic Platforms List
                     ListView.builder(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
@@ -159,50 +216,40 @@ class _Preferedservices1State extends State<Preferedservices1> {
                       itemBuilder: (context, index) {
                         final platformData = platform[index];
                         final platformName = platformData.name ?? 'Unknown';
-                        final platformLogo =
-                            platformData.iconUrl ?? ''; // ✅ Corrected access
+                        final platformLogo = platformData.iconUrl ?? '';
+                        final platformId = platformData.id ?? 0;
+
                         final isSelected = objGetAllpreferredPlatforms
                             .selectedPlatforms
                             .contains(platformName);
 
                         return GestureDetector(
                           onTap: () {
-                            if (isSelected) {
-                              objGetAllpreferredPlatforms.selectedPlatforms
-                                  .remove(platformName);
-                            } else {
-                              objGetAllpreferredPlatforms.selectedPlatforms
-                                  .add(platformName);
-                            }
+                            objGetAllpreferredPlatforms.togglePlatforms(
+                              platformName,
+                              platformId,
+                            );
                           },
                           child: Container(
                             margin: EdgeInsets.only(bottom: height * 0.02),
                             decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(16),
                               border: Border.all(
-                                color: Colors.white.withOpacity(0.2),
-                              ),
-                              gradient: LinearGradient(
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                                colors: [
-                                  Colors.white.withOpacity(0.1),
-                                  Colors.white.withOpacity(0.05),
-                                ],
+                                color: Colors.white.withOpacity(0.25),
                               ),
                             ),
                             child: ClipRRect(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(16),
                               child: BackdropFilter(
-                                filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                                child: Padding(
+                                filter:
+                                    ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                                child: Container(
                                   padding: EdgeInsets.symmetric(
-                                    horizontal: width * 0.04,
-                                    vertical: height * 0.018,
+                                    horizontal: width * 0.025,
+                                    vertical: height * 0.013,
                                   ),
                                   child: Row(
                                     children: [
-                                      // 🔹 Platform Image
                                       ClipRRect(
                                         borderRadius: BorderRadius.circular(8),
                                         child: Image.network(
@@ -225,8 +272,6 @@ class _Preferedservices1State extends State<Preferedservices1> {
                                         ),
                                       ),
                                       SizedBox(width: width * 0.05),
-
-                                      // 🔹 Platform Name
                                       Expanded(
                                         child: Text(
                                           platformName,
@@ -237,8 +282,6 @@ class _Preferedservices1State extends State<Preferedservices1> {
                                           ),
                                         ),
                                       ),
-
-                                      // 🔹 Selection Tick
                                       AnimatedOpacity(
                                         opacity: isSelected ? 1.0 : 0.0,
                                         duration:
@@ -258,7 +301,6 @@ class _Preferedservices1State extends State<Preferedservices1> {
                         );
                       },
                     ),
-
                     SizedBox(height: height * 0.05),
                   ],
                 ),
