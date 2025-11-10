@@ -37,6 +37,8 @@ class ApiConstants {
   static const String savePreferredGenres = "$baseUrls/usergenres/save";
 
 
+  // Save Preferred Genres end-point
+  static const String getAllSavedGenres = "$baseUrls/usergenres";
 
 
 
@@ -47,11 +49,21 @@ class ApiConstants {
 
 
 
-  // Preferred Genres List end-point
+
+
+  // All Preferred Genres List end-point
   static const String preferredPlatforms = "$baseUrls/platforms";
 
-  // Preferred Genres List end-point
+  // Save Preferred Genres List end-point
   static const String savePreferredPlatforms = "$baseUrls/userplatforms/save";
+
+
+  // Get Preferred Genres List end-point
+  static const String getSavedPreferredPlatforms = "$baseUrls/userplatforms";
+
+
+
+
 
   // Get Popular Celebrities
   static const String popularCelebrities = "$baseUrls/celebrities";

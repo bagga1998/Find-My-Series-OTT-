@@ -1,14 +1,18 @@
-// ignore_for_file: prefer_interpolation_to_compose_strings
+// ignore_for_file: prefer_interpolation_to_compose_strings, deprecated_member_use
 
 import 'dart:ui';
 import 'package:find_my_series/Screens/Profile/Favourite%20People/favouritePeopleScreen.dart';
+import 'package:find_my_series/Screens/Profile/Get%20Genres/getAllPrefGenresScreen.dart';
 import 'package:find_my_series/Screens/Profile/Get%20Language%20Preferences/getLanguagePrefScreen.dart';
+import 'package:find_my_series/Screens/Profile/OTT%20Preferences/ottPreferenceController.dart';
+import 'package:find_my_series/Screens/Profile/OTT%20Preferences/ottPreferenceScreen.dart';
 import 'package:find_my_series/Screens/Profile/Rating%20History/ratingHistoryScreen.dart';
 import 'package:find_my_series/Screens/Profile/Recently%20Viewed/recentlyViewedScreen.dart';
 import 'package:find_my_series/Screens/Profile/Update%20Profile/updateProfileScreen.dart';
 import 'package:find_my_series/Screens/Profile/Watch%20History/watchHistoryScreen.dart';
 import 'package:find_my_series/Screens/Profile/watch%20list/watchListScreen.dart';
 import 'package:find_my_series/Screens/Settings/Settings/settingScreen.dart';
+import 'package:find_my_series/auth/Prefered%20Service/Preferred%20Services/preferedServicesController.dart';
 import 'package:find_my_series/widgets/appBar.dart';
 import 'package:find_my_series/widgets/colors.dart';
 import 'package:find_my_series/widgets/font-styles.dart';
@@ -77,15 +81,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
     },
   ];
 
-  final List<Map<String, dynamic>> items = const [
-    {"title": "Lists", "count": 1},
-    {"title": "Reviews", "count": 6},
-    {"title": "Interests", "count": 15},
-    {"title": "Language Preferences", "count": 3},
-    {"title": "OTT Preferences", "count": 6},
-    {"title": "Favorite People", "count": 3},
-    {"title": "Check-ins", "count": 5},
-  ];
+  final Ottpreferencecontroller objOttpreference = Get.put(Ottpreferencecontroller());
+
+
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   objOttpreference.fetchPreferredPlatforms(context);
+    
+  // }
+
+  late List<Map<String, dynamic>> items;
+
+  @override
+  void initState() {
+    super.initState();
+    objOttpreference.fetchPreferredPlatforms(context);
+
+    items = [
+      {"title": "Lists", "count": 1},
+      {"title": "Reviews", "count": 6},
+      {"title": "Interests", "count": 15},
+      {"title": "Language Preferences", "count": 3},
+      {"title": "OTT Preferences", "count": objOttpreference.ottPreferenceList.length.toString()},
+      {"title": "Favorite People", "count": 3},
+      {"title": "Check-ins", "count": 5},
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -475,49 +497,54 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       borderRadius: BorderRadius.circular(10),
                       child: BackdropFilter(
                         filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                        child: Container(
-                          width: double.infinity,
-                          height: height * 0.063,
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(
-                              0.07,
-                            ), // translucent white
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(
-                              color: Colors.white.withOpacity(0.15),
+                        child: GestureDetector(
+                          onTap: () {
+                            Get.to(GetAllSavedGenresScreen());
+                          },
+                          child: Container(
+                            width: double.infinity,
+                            height: height * 0.063,
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(
+                                0.07,
+                              ), // translucent white
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(
+                                color: Colors.white.withOpacity(0.15),
+                              ),
                             ),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Text(
-                                "Interests",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w400,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Text(
+                                  "Interests",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w400,
+                                  ),
                                 ),
-                              ),
-                              Row(
-                                children: const [
-                                  Text(
-                                    "15",
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w500,
+                                Row(
+                                  children: const [
+                                    Text(
+                                      "15",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w500,
+                                      ),
                                     ),
-                                  ),
-                                  SizedBox(width: 8),
-                                  Icon(
-                                    Icons.arrow_forward_ios_rounded,
-                                    color: Colors.white70,
-                                    size: 16,
-                                  ),
-                                ],
-                              ),
-                            ],
+                                    SizedBox(width: 8),
+                                    Icon(
+                                      Icons.arrow_forward_ios_rounded,
+                                      color: Colors.white70,
+                                      size: 16,
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
@@ -586,49 +613,52 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       borderRadius: BorderRadius.circular(10),
                       child: BackdropFilter(
                         filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                        child: Container(
-                          width: double.infinity,
-                          height: height * 0.063,
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(
-                              0.07,
-                            ), // translucent white
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(
-                              color: Colors.white.withOpacity(0.15),
+                        child: GestureDetector(
+                          onTap: () {
+                            Get.to(GetOTTPlatformPrefScreen());
+                          },
+                          child: Container(
+                            width: double.infinity,
+                            height: height * 0.063,
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(
+                                0.07,
+                              ), // translucent white
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(
+                                color: Colors.white.withOpacity(0.15),
+                              ),
                             ),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Text(
-                                "OTT Preferences",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w400,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const CustomText(
+                                 text: "OTT Preferences",
+                                   color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w400,
+                                    fontFamily: "Dm Sans",
                                 ),
-                              ),
-                              Row(
-                                children: const [
-                                  Text(
-                                    "1",
-                                    style: TextStyle(
+                                Row(
+                                  children: [
+                                    CustomText(
+                                     text: objOttpreference.ottPreferenceList.length.toString(),
                                       color: Colors.white,
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w500,
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w500,
+                                        fontFamily: "DM Sans",
                                     ),
-                                  ),
-                                  SizedBox(width: 8),
-                                  Icon(
-                                    Icons.arrow_forward_ios_rounded,
-                                    color: Colors.white70,
-                                    size: 16,
-                                  ),
-                                ],
-                              ),
-                            ],
+                                    SizedBox(width: 8),
+                                    Icon(
+                                      Icons.arrow_forward_ios_rounded,
+                                      color: Colors.white70,
+                                      size: 16,
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
