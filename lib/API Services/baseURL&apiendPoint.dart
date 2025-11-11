@@ -14,6 +14,9 @@ class ApiConstants {
   static const String register = "$baseUrls/auth/register";
 
 
+  ////////////////////////////////////////// Preferred Languages ////////////////////////////////////////////////////
+
+
   static const String preferredLanguageList = "$baseUrls/language";
 
   // Save user preferred language
@@ -21,14 +24,9 @@ class ApiConstants {
 
   // Get user preferred language
   static const String getSavedPreferredLanguage = "$baseUrls/userlanguage";
-  
 
 
-
-
-
-
-
+  ////////////////////////////////////////// Preferred Genres ////////////////////////////////////////////////////
 
   // Preferred Genres List end-point
   static const String preferredGenresList = "$baseUrls/categories";
@@ -42,14 +40,7 @@ class ApiConstants {
 
 
 
-
-
-
-
-
-
-
-
+  ////////////////////////////////////////// Preferred Platforms ////////////////////////////////////////////////////
 
   // All Preferred Genres List end-point
   static const String preferredPlatforms = "$baseUrls/platforms";
@@ -85,6 +76,11 @@ class ApiConstants {
 
   // Add TO watch list
   static const String addtowatchlist = "$baseUrls/favorites";
+
+  ////////////////////////////////////////// Popular Indian Movies ////////////////////////////////////////////////////
   // Polular indian movies lits
-  static const String popularIndianMovies = "$baseUrls/movies/popular";
+  static const String popularIndianMovies = "$baseUrls/movies";
+  
+  // Polular indian movie details
+  static const String popularIndianMovieDetails = "$baseUrls/movies";
 }

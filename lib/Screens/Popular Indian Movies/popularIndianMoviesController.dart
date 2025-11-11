@@ -27,7 +27,7 @@ class PopularIndianMoviescontroller extends GetxController {
       print("Popular movies url:- $url");
       print("Popular movies body response:- ${response.body}");
       if (response.statusCode == 200) {
-        popularMoviesList.addAll(popularIndianMoviesModel.data);
+        popularMoviesList.addAll(popularIndianMoviesModel.movies);
         isLoading.value = false;
       } else {
         _showModernMessage(

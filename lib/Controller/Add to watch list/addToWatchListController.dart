@@ -11,6 +11,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class AddToWatchlistController extends GetxController {
   var isLoading = false.obs;
+  var isAdded = false
+      .obs; // ✅ New reactive variable to control button text and state
   final http.Client httpClient = http.Client();
 
   Future<void> addToWatchlistFunction(String movieId, BuildContext context) async {
@@ -21,7 +23,7 @@ class AddToWatchlistController extends GetxController {
       final String? token = prefs.getString('token');
 
       if (token == null || token.isEmpty) {
-        _showModernMessage(context, 'No token found. Please log in again.', Colors.redAccent);
+        showModernMessage(context, 'No token found. Please log in again.', Colors.redAccent);
         isLoading.value = false;
         return;
       }
@@ -54,47 +56,49 @@ class AddToWatchlistController extends GetxController {
       }
 
       final String message = decodedResponse?['message']?.toString() ?? 'No message from server';
-      // final bool success = decodedResponse?['success'] == true;
+      final bool success = decodedResponse?['success'] == true;
 
-      
+      if (success) {
+        isAdded.value = true; // ✅ Update UI to show “Added”
+      }
 
+      // ✅ Always show API message clearly
       switch (response.statusCode) {
         case 200:
         case 201:
-          _showModernMessage(context, message, Colors.greenAccent);
+          showModernMessage(context, message, Colors.greenAccent);
           break;
         case 400:
-          _showModernMessage(context, message, Colors.orangeAccent);
+          showModernMessage(context, message, Colors.orangeAccent);
           break;
         case 401:
-          _showModernMessage(context, "Unauthorized. Please log in again.", Colors.redAccent);
+          showModernMessage(context, "Unauthorized. Please log in again.", Colors.redAccent);
           break;
         case 403:
-          _showModernMessage(context, "Access Denied: $message", Colors.deepOrangeAccent);
+          showModernMessage(context, "Access Denied: $message", Colors.deepOrangeAccent);
           break;
         case 404:
-          _showModernMessage(context, "Endpoint Not Found: $message", Colors.grey);
+          showModernMessage(context, "Endpoint Not Found: $message", Colors.grey);
           break;
         case 409:
-          _showModernMessage(context, "Duplicate entry: $message", Colors.purpleAccent);
+          showModernMessage(context, message, Colors.purpleAccent);
           break;
         case 500:
-          _showModernMessage(context, "Server Error: $message", Colors.redAccent);
+          showModernMessage(context, "Server Error: $message", Colors.redAccent);
           break;
         default:
-          _showModernMessage(context, "Unexpected Error (${response.statusCode}): $message", Colors.blueGrey);
+          showModernMessage(context, "Unexpected Error (${response.statusCode}): $message", Colors.blueGrey);
       }
-
     } catch (error) {
       print("❌ Error adding to watchlist: $error");
-      _showModernMessage(context, "Something went wrong. Please try again.", Colors.redAccent);
+      showModernMessage(context, "Something went wrong. Please try again.", Colors.redAccent);
     } finally {
       isLoading.value = false;
     }
   }
 
-  /// ✅ Glass-style message banner with safe dismiss button
-  void _showModernMessage(BuildContext context, String message, Color color) {
+  /// ✅ Glass-style message banner with safe dismiss
+  void showModernMessage(BuildContext context, String message, Color color) {
     ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
 
     final banner = MaterialBanner(
@@ -146,4 +150,5 @@ class AddToWatchlistController extends GetxController {
       }
     });
   }
+
 }

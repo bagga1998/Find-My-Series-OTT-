@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'dart:ui';
 
 import 'package:chewie/chewie.dart';
@@ -6,6 +8,7 @@ import 'package:find_my_series/Screens/All%20Cast%20&%20Crew/allCast&CrewScreen.
 import 'package:find_my_series/Screens/Cast/castScreen.dart';
 import 'package:find_my_series/Screens/Detail%20Page%20Photos/detailPagePhotosScreen.dart';
 import 'package:find_my_series/Screens/Detail%20Page%20Videos/detailPageVideoScreen.dart';
+import 'package:find_my_series/Screens/Movie%20details%20screen/movieDetailsController.dart';
 import 'package:find_my_series/Screens/Movie%20details%20screen/videoController.dart';
 import 'package:find_my_series/Screens/Rate%20Now/RateNowScreen.dart';
 import 'package:find_my_series/Screens/Add%20Users%20Reviews/AddUsersReviewsScreen.dart';
@@ -19,6 +22,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 class MovieDetailsScreen extends StatefulWidget {
   final String movieId;
@@ -29,7 +33,12 @@ class MovieDetailsScreen extends StatefulWidget {
 }
 
 class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
-  // final Addtowatchlistcontroller objAddtowatchlistcontroller = Get.put(Addtowatchlistcontroller());
+  final controller = Get.put(AddToWatchlistController());
+  final GetMovieDetailsController getMovieDetailsController = Get.put(
+    GetMovieDetailsController(),
+  );
+    final movieController = Get.put(GetMovieDetailsController());
+  final videoController = Get.put(VideoPlayerControllerX());
   bool isPlaying = false;
   bool isPlayingVideo = false;
   int _likeCount = 216;
@@ -49,15 +58,23 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
       "bookmarked": false,
     },
   ];
-  final VideoPlayerControllerX videoController = Get.put(
-    VideoPlayerControllerX(),
-  );
 
   @override
   void initState() {
     super.initState();
-    videoController.initializeVideo(
-      'https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4',
+    getMovieDetailsController.getMovieDetails(context, widget.movieId);
+      _loadMovie();
+    print(" Movie ID:- ${widget.movieId}");
+  }
+
+    Future<void> _loadMovie() async {
+    print("🎬 Fetching movie details for: ${widget.movieId}");
+    await movieController.getMovieDetails(context, widget.movieId);
+
+    // Pass URLs to video controller
+    await videoController.setUrls(
+      video: movieController.videoUrl.value,
+      trailer: movieController.trailerUrl.value,
     );
   }
 
@@ -115,104 +132,163 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    CustomText(
-                      text: 'Kantara: A legend-Chapter1',
-                      fontFamily: 'DM Sans',
-                      fontSize: 21,
-                      fontWeight: FontWeight.w700,
-                      color: OTTColors.whiteColor,
-                    ),
-                    CustomText(
-                      text: '2025 • UA 16+ • 2h45m',
-                      fontFamily: 'DM Sans',
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                      color: OTTColors.preferredServices,
-                    ),
+                    Obx(() {
+                      return CustomText(
+                        text: getMovieDetailsController.title.value,
+                        fontFamily: 'DM Sans',
+                        fontSize: 21,
+                        fontWeight: FontWeight.w700,
+                        color: OTTColors.whiteColor,
+                      );
+                    }),
+                    Obx(() {
+                      return CustomText(
+                        text:
+                            '${getMovieDetailsController.year.value} • ${getMovieDetailsController.certificateName.value} • ${getMovieDetailsController.duration.value}',
+                        fontFamily: 'DM Sans',
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: OTTColors.preferredServices,
+                      );
+                    }),
                     SizedBox(height: 20),
 
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
-                      child: Obx(() {
-                        if (!videoController.isVideoInitialized.value) {
-                          // 🔥 Shimmer placeholder instead of loader
-                          return Shimmer.fromColors(
-                            baseColor: Colors.grey.shade800,
-                            highlightColor: Colors.grey.shade600,
-                            child: Container(
-                              height: height * 0.3,
-                              width: double.infinity,
-                              color: Colors.grey.shade800,
-                            ),
-                          );
-                        }
+                ClipRRect(
+  borderRadius: BorderRadius.circular(12),
+  child: Obx(() {
+    final hasVideo = videoController.videoUrl?.isNotEmpty ?? false;
+    final hasTrailer = videoController.trailerUrl?.isNotEmpty ?? false;
 
-                        return SizedBox(
-                          height: height * 0.3,
-                          width: double.infinity,
-                          child: Stack(
-                            alignment: Alignment.bottomCenter,
-                            children: [
-                              Chewie(
-                                controller: videoController.chewieController!,
-                              ),
+    // Show shimmer while initializing
+    if (!videoController.isVideoInitialized.value && hasVideo) {
+      return Shimmer.fromColors(
+        baseColor: Colors.grey.shade800,
+        highlightColor: Colors.grey.shade600,
+        child: AspectRatio(
+          aspectRatio: 16 / 9,
+          child: Container(
+            width: double.infinity,
+            color: Colors.grey.shade800,
+          ),
+        ),
+      );
+    }
 
-                              // 🎛 Custom Controls Overlay
-                              Positioned(
-                                bottom: 12,
-                                left: 12,
-                                right: 12,
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    // ▶ Play/Pause Button
-                                    InkWell(
-                                      onTap: videoController.togglePlayPause,
-                                      borderRadius: BorderRadius.circular(30),
-                                      child: Container(
-                                        padding: const EdgeInsets.all(8),
-                                        decoration: BoxDecoration(
-                                          color: Colors.black.withOpacity(0.5),
-                                          shape: BoxShape.circle,
-                                        ),
-                                        child: Icon(
-                                          videoController.isPlaying.value
-                                              ? Icons.pause
-                                              : Icons.play_arrow,
-                                          color: Colors.white,
-                                          size: 26,
-                                        ),
-                                      ),
-                                    ),
+    // 🎬 Play normal video if available
+    if (hasVideo && videoController.chewieController != null) {
+      final aspect = videoController
+              .videoPlayerController.value.aspectRatio;
 
-                                    // 🔇 Mute Button
-                                    InkWell(
-                                      onTap: videoController.toggleMute,
-                                      borderRadius: BorderRadius.circular(30),
-                                      child: Container(
-                                        padding: const EdgeInsets.all(8),
-                                        decoration: BoxDecoration(
-                                          color: Colors.black.withOpacity(0.5),
-                                          shape: BoxShape.circle,
-                                        ),
-                                        child: Icon(
-                                          videoController.isMuted.value
-                                              ? Icons.volume_off
-                                              : Icons.volume_up,
-                                          color: Colors.white,
-                                          size: 22,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
-                      }),
+      // ✅ Ensure visible area with proper constraints
+      return Container(
+        width: double.infinity,
+        constraints: const BoxConstraints(
+          minHeight: 200,
+          maxHeight: 400,
+        ),
+        color: Colors.black,
+        child: Stack(
+          alignment: Alignment.bottomCenter,
+          children: [
+            AspectRatio(
+              aspectRatio: aspect > 0 ? aspect : 16 / 9,
+              child: Chewie(
+                controller: videoController.chewieController!,
+              ),
+            ),
+
+            // 🎛️ Custom Controls Row
+            Positioned(
+              bottom: 12,
+              left: 16,
+              child: Row(
+                children: [
+                  InkWell(
+                    onTap: videoController.togglePlayPause,
+                    borderRadius: BorderRadius.circular(30),
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.5),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        videoController.isPlaying.value
+                            ? Icons.pause
+                            : Icons.play_arrow,
+                        color: Colors.white,
+                        size: 26,
+                      ),
                     ),
+                  ),
+                  const SizedBox(width: 12),
+                  InkWell(
+                    onTap: videoController.toggleMute,
+                    borderRadius: BorderRadius.circular(30),
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.5),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        videoController.isMuted.value
+                            ? Icons.volume_off
+                            : Icons.volume_up,
+                        color: Colors.white,
+                        size: 22,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // 📺 Show YouTube trailer if normal video not available
+    if (hasTrailer) {
+      final videoId = YoutubePlayer.convertUrlToId(
+        videoController.trailerUrl!,
+      );
+      return Container(
+        width: double.infinity,
+        constraints: const BoxConstraints(
+          minHeight: 200,
+          maxHeight: 400,
+        ),
+        child: YoutubePlayer(
+          controller: YoutubePlayerController(
+            initialVideoId: videoId!,
+            flags: const YoutubePlayerFlags(
+              autoPlay: false,
+              mute: false,
+            ),
+          ),
+          showVideoProgressIndicator: true,
+        ),
+      );
+    }
+
+    // No video available
+    return AspectRatio(
+      aspectRatio: 16 / 9,
+      child: Container(
+        color: Colors.grey.shade900,
+        child: const Center(
+          child: CustomText(
+            text: 'No video available',
+            color: Colors.white70,
+            fontSize: 16,
+          ),
+        ),
+      ),
+    );
+  }),
+),
+
 
                     SizedBox(height: 20),
                     LayoutBuilder(
@@ -228,12 +304,27 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                               flex: isSmallScreen ? 4 : 5,
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(12),
-                                child: Image.asset(
-                                  'assets/md1.png',
-                                  height: height * 0.22,
-                                  width: double.infinity,
-                                  fit: BoxFit.contain,
-                                ),
+                                child: Obx(() {
+                                  final thumbnailUrl = getMovieDetailsController
+                                      .thumbnailUrl
+                                      .value;
+
+                                  if (thumbnailUrl.isEmpty ||
+                                      !thumbnailUrl.startsWith('http')) {
+                                    // Show placeholder if URL is invalid
+                                    return Image.asset(
+                                      'assets/images/placeholder.png', // Make sure you have this asset
+                                      fit: BoxFit.cover,
+                                    );
+                                  } else {
+                                    // Show network image
+                                    return Image.network(
+                                      thumbnailUrl,
+                                      fit: BoxFit.cover,
+                                      
+                                    );
+                                  }
+                                }),
                               ),
                             ),
 
@@ -243,14 +334,17 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                             // Text takes remaining space and wraps
                             Flexible(
                               flex: 6,
-                              child: CustomText(
-                                text:
-                                    'Exploring the origins of Kaadubettu Shiva during the Kadamba dynasty era, it delves into the untamed wilderness and forgotten lore surrounding his past.',
-                                fontFamily: 'DM Sans',
-                                fontSize: isSmallScreen ? 14 : 12,
-                                fontWeight: FontWeight.w400,
-                                color: OTTColors.preferredServices,
-                                maxLines: 20,
+                              child: Obx(() {
+                                return CustomText(
+                                  text:
+                                      getMovieDetailsController.description.value,
+                                  fontFamily: 'DM Sans',
+                                  fontSize: isSmallScreen ? 14 : 12,
+                                  fontWeight: FontWeight.w400,
+                                  color: OTTColors.preferredServices,
+                                  maxLines: 20,
+                                );
+                              }
                               ),
                             ),
                           ],
@@ -261,9 +355,16 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                     Wrap(
                       spacing: 8,
                       children: [
-                        _buildGenreChip('Kannada'),
-                        _buildGenreChip('Action'),
-                        _buildGenreChip('Thriller'),
+                        Obx(
+                          () => _buildGenreChip(
+                            getMovieDetailsController.genreNames,
+                          ),
+                        ),
+                        Obx(
+                          () => _buildGenreChip(
+                            getMovieDetailsController.languageNames,
+                          ),
+                        ),
                       ],
                     ),
                     SizedBox(height: 20),
@@ -289,12 +390,15 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                             height: 22,
                           ), // Netflix logo
                           const SizedBox(width: 10),
-                          const CustomText(
-                            text: 'Watch it on Netflix',
-                            color: Colors.white,
-                            fontFamily: 'DM Sans',
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
+                          Obx(() {
+                            return CustomText(
+                              text: getMovieDetailsController.platformName.value,
+                              color: Colors.white,
+                              fontFamily: 'DM Sans',
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            );
+                          }
                           ),
                         ],
                       ),
@@ -302,60 +406,72 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                     const SizedBox(height: 16),
 
                     // Inside your widget build method
-                    GestureDetector(
-                      onTap: () async {
-                        final controller = Get.put(AddToWatchlistController());
-                        await controller.addToWatchlistFunction(
-                          widget.movieId,
-                          context,
-                        );
-                      },
-                      child: Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 14,
-                        ),
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [Color(0xFFBA66F0), Color(0xFF742DFF)],
-                            begin: Alignment.centerLeft,
-                            end: Alignment.centerRight,
+                    Obx(
+                      () => GestureDetector(
+                        onTap: () async {
+                          if (!controller.isAdded.value) {
+                            await controller.addToWatchlistFunction(
+                              widget.movieId,
+                              context,
+                            );
+                          } else {
+                            controller.showModernMessage(
+                              context,
+                              "This movie is already in your watchlist!",
+                              Colors.orangeAccent,
+                            );
+                          }
+                        },
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 14,
                           ),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              children: [
-                                Container(
-                                  decoration: BoxDecoration(
-                                    border: Border.all(color: Colors.white),
-                                    borderRadius: BorderRadius.circular(6),
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [Color(0xFFBA66F0), Color(0xFF742DFF)],
+                              begin: Alignment.centerLeft,
+                              end: Alignment.centerRight,
+                            ),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      border: Border.all(color: Colors.white),
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: const Icon(
+                                      Icons.add,
+                                      color: Colors.white,
+                                    ),
                                   ),
-                                  child: const Icon(
-                                    Icons.add,
+                                  const SizedBox(width: 8),
+                                  // ✅ Reactive text change using Obx
+                                  CustomText(
+                                    text: controller.isAdded.value
+                                        ? 'Added to Watchlist'
+                                        : 'Add to Watchlist',
                                     color: Colors.white,
+                                    fontFamily: 'DM Sans',
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w700,
                                   ),
-                                ),
-                                const SizedBox(width: 8),
-                                const CustomText(
-                                  text: 'Add to Watchlist',
-                                  color: Colors.white,
-                                  fontFamily: 'DM Sans',
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ],
-                            ),
-                            CustomText(
-                              text: 'Added by 11.7K Users',
-                              color: Colors.white.withOpacity(0.8),
-                              fontFamily: 'DM Sans',
-                              fontSize: 12,
-                            ),
-                          ],
+                                ],
+                              ),
+                              CustomText(
+                                text: 'Added by 11.7K Users',
+                                color: Colors.white.withOpacity(0.8),
+                                fontFamily: 'DM Sans',
+                                fontSize: 12,
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
@@ -1388,18 +1504,26 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
     );
   }
 
-  Widget _buildGenreChip(String title) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 5),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: Colors.white30),
-      ),
-      child: Text(
-        title,
-        style: const TextStyle(color: Colors.white, fontSize: 13),
-      ),
+  Widget _buildGenreChip(List<String> titles) {
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: titles.map((title) {
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 5),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: Colors.white30),
+          ),
+          child: CustomText(
+            text: title,
+            fontFamily: "DM Sans",
+            color: OTTColors.whiteColor,
+            fontSize: 13,
+          ),
+        );
+      }).toList(),
     );
   }
 

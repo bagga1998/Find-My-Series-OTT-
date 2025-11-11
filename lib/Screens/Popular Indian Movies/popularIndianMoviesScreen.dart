@@ -4,7 +4,7 @@ import 'package:find_my_series/widgets/appBar.dart';
 import 'package:find_my_series/widgets/colors.dart';
 import 'package:find_my_series/widgets/font-styles.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 
 class PopularIndianMoviesScreen extends StatefulWidget {
@@ -16,7 +16,9 @@ class PopularIndianMoviesScreen extends StatefulWidget {
 }
 
 class _PopularIndianMoviesScreenState extends State<PopularIndianMoviesScreen> {
-  final PopularIndianMoviescontroller objPopularIndianMoviescontroller = Get.put(PopularIndianMoviescontroller());
+  final PopularIndianMoviescontroller objPopularIndianMoviescontroller =
+      Get.put(PopularIndianMoviescontroller());
+
   final TextEditingController _searchController = TextEditingController();
   String searchText = '';
 
@@ -26,38 +28,10 @@ class _PopularIndianMoviesScreenState extends State<PopularIndianMoviesScreen> {
     objPopularIndianMoviescontroller.popularMoviesFunctions(context);
   }
 
-  final List<Map<String, String>> castList = [
-    {
-      'name': 'War 2',
-      'character': 'Language: Hindi',
-      'image': 'assets/cs1.png',
-    },
-    {
-      'name': 'Hello Mini 3',
-      'character': 'Language: Hindi',
-      'image': 'assets/topPick1.png',
-    },
-    {
-      'name': 'Kesari 2',
-      'character': 'Language: Hindi',
-      'image': 'assets/thriller.png',
-    },
-    {
-      'name': 'Hichki',
-      'character': 'Language: Hindi',
-      'image': 'assets/topPick2.png',
-    },
-  ];
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
-
-    final filteredCast = castList
-        .where(
-          (c) => c['name']!.toLowerCase().contains(searchText.toLowerCase()),
-        )
-        .toList();
 
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -68,13 +42,12 @@ class _PopularIndianMoviesScreenState extends State<PopularIndianMoviesScreen> {
         showBackArrow: true,
         leadingOnPressed: Get.back,
         leadingIconSize: 18,
-        leadingTextStyle: TextStyle(
+        leadingTextStyle: const TextStyle(
           fontFamily: 'DM Sans',
           fontSize: 16,
           fontWeight: FontWeight.w600,
           color: OTTColors.whiteColor,
         ),
-
         backgroundColor: Colors.transparent,
         elevation: 0,
         gradient: const LinearGradient(
@@ -86,7 +59,7 @@ class _PopularIndianMoviesScreenState extends State<PopularIndianMoviesScreen> {
       body: SafeArea(
         child: Stack(
           children: [
-            // Background
+            // 🔹 Background
             Positioned.fill(
               child: SvgPicture.asset(
                 'assets/background.svg',
@@ -94,7 +67,7 @@ class _PopularIndianMoviesScreenState extends State<PopularIndianMoviesScreen> {
               ),
             ),
 
-            // Foreground content
+            // 🔹 Foreground content
             Padding(
               padding: EdgeInsets.symmetric(
                 horizontal: width * 0.04,
@@ -103,8 +76,7 @@ class _PopularIndianMoviesScreenState extends State<PopularIndianMoviesScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Title
-                  // Header
+                  // 🔹 Header Row
                   Row(
                     children: [
                       Container(
@@ -115,7 +87,7 @@ class _PopularIndianMoviesScreenState extends State<PopularIndianMoviesScreen> {
                           borderRadius: BorderRadius.circular(4),
                         ),
                       ),
-                      SizedBox(width: 10),
+                      const SizedBox(width: 10),
                       CustomText(
                         text: 'Popular Indian Movies',
                         color: OTTColors.buttoncolour,
@@ -123,7 +95,7 @@ class _PopularIndianMoviesScreenState extends State<PopularIndianMoviesScreen> {
                         fontWeight: FontWeight.w600,
                         fontSize: 20,
                       ),
-                      Spacer(),
+                      const Spacer(),
                       const Icon(
                         Icons.filter_list,
                         color: OTTColors.buttoncolour,
@@ -132,7 +104,7 @@ class _PopularIndianMoviesScreenState extends State<PopularIndianMoviesScreen> {
                   ),
                   SizedBox(height: height * 0.02),
 
-                  // Search Bar
+                  // 🔹 Search Bar
                   Container(
                     height: height * 0.06,
                     decoration: BoxDecoration(
@@ -144,13 +116,10 @@ class _PopularIndianMoviesScreenState extends State<PopularIndianMoviesScreen> {
                       controller: _searchController,
                       onChanged: (val) => setState(() => searchText = val),
                       style: const TextStyle(color: Colors.white),
-                      decoration: InputDecoration(
-                        prefixIcon: const Icon(
-                          Icons.search,
-                          color: Colors.white70,
-                        ),
+                      decoration: const InputDecoration(
+                        prefixIcon: Icon(Icons.search, color: Colors.white70),
                         hintText: 'Search By Movie Name',
-                        hintStyle: const TextStyle(
+                        hintStyle: TextStyle(
                           color: Colors.white70,
                           fontSize: 14,
                         ),
@@ -160,144 +129,171 @@ class _PopularIndianMoviesScreenState extends State<PopularIndianMoviesScreen> {
                   ),
                   SizedBox(height: height * 0.02),
 
-                  // Cast List
+                  // 🔹 Movie List
                   Expanded(
-                    child: ListView.builder(
-                      physics: const BouncingScrollPhysics(),
-                      itemCount: filteredCast.length,
-                      itemBuilder: (context, index) {
-                        final actor = filteredCast[index];
-                        return Container(
-                          margin: EdgeInsets.only(bottom: height * 0.015),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.08),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: Colors.white.withOpacity(0.15),
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.25),
-                                blurRadius: 8,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
+                    child: Obx(() {
+                      if (objPopularIndianMoviescontroller.isLoading.value) {
+                        return const Center(
+                          child: CircularProgressIndicator(
+                            color: OTTColors.buttoncolour,
                           ),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              // Actor Image - slightly overlapping & larger
-                              Transform.translate(
-                                offset: Offset(-width * 0.015, 0),
-                                child: Padding(
+                        );
+                      }
+
+                      final movies = objPopularIndianMoviescontroller
+                          .popularMoviesList
+                          .where((movie) => movie.title
+                              .toLowerCase()
+                              .contains(searchText.toLowerCase()))
+                          .toList();
+
+                      if (movies.isEmpty) {
+                        return const Center(
+                          child: Text(
+                            'No movies found',
+                            style: TextStyle(color: Colors.white70),
+                          ),
+                        );
+                      }
+
+                      return ListView.builder(
+                        physics: const BouncingScrollPhysics(),
+                        itemCount: movies.length,
+                        itemBuilder: (context, index) {
+                          final movie = movies[index];
+                          return Container(
+                            margin: EdgeInsets.only(bottom: height * 0.015),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.08),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: Colors.white.withOpacity(0.15),
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.25),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                // 🔹 Movie Poster
+                                Padding(
                                   padding: const EdgeInsets.all(8.0),
                                   child: GestureDetector(
                                     onTap: () {
-                                      Get.to(MovieDetailsScreen(movieId: '1',));  //////////////////////////////////////  chnage here and send the dynamic celebrity ID here
+                                      Get.to(() => MovieDetailsScreen(
+                                            movieId: movie.id.toString(),
+                                          ));
                                     },
                                     child: ClipRRect(
-                                      borderRadius: BorderRadiusGeometry.circular(
-                                        12,
-                                      ),
-                                      child: Image.asset(
-                                        actor['image'] ??
-                                            'assets/celebrities.png',
+                                      borderRadius: BorderRadius.circular(12),
+                                      child: Image.network(
+                                        movie.thumbnailUrl.isNotEmpty
+                                            ? movie.thumbnailUrl
+                                            : 'https://via.placeholder.com/150',
                                         height: height * 0.12,
                                         width: height * 0.10,
-                                        fit: BoxFit.contain,
+                                        fit: BoxFit.cover,
+                                        errorBuilder: (context, error, stack) =>
+                                            Image.asset(
+                                          'assets/no_image.png',
+                                          height: height * 0.12,
+                                          width: height * 0.10,
+                                          fit: BoxFit.cover,
+                                        ),
                                       ),
                                     ),
                                   ),
                                 ),
-                              ),
+                                SizedBox(width: width * 0.03),
 
-                              SizedBox(width: width * 0.03),
-
-                              // Actor details
-                              Expanded(
-                                child: Padding(
-                                  padding: EdgeInsets.symmetric(
-                                    vertical: height * 0.015,
-                                  ),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        actor['name'] ?? '',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: width * 0.045,
-                                          fontWeight: FontWeight.w600,
-                                          fontFamily: 'DM Sans',
+                                // 🔹 Movie Details
+                                Expanded(
+                                  child: Padding(
+                                    padding: EdgeInsets.symmetric(
+                                      vertical: height * 0.015,
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          movie.title,
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: width * 0.045,
+                                            fontWeight: FontWeight.w600,
+                                            fontFamily: 'DM Sans',
+                                          ),
                                         ),
-                                      ),
-                                      SizedBox(height: height * 0.003),
-                                      Row(
-                                        children: [
-                                          CustomText(
-                                            text: 'Language:',
-                                            color: OTTColors.preferredServices,
-                                            fontSize: width * 0.040,
-                                            fontWeight: FontWeight.w500,
-                                            fontFamily: 'DM Sans',
-                                          ),
-                                          CustomText(
-                                            text: ' Hindi, Tamil, Telugu',
-                                            color: OTTColors.preferredServices,
-                                            fontSize: width * 0.035,
-                                            fontWeight: FontWeight.w400,
-                                            fontFamily: 'DM Sans',
-                                          ),
-                                        ],
-                                      ),
-                                      SizedBox(height: height * 0.006),
-                                      Row(
-                                        children: [
-                                          SizedBox(width: width * 0.015),
-                                          CustomText(
-                                            text: 'UA 16+',
-                                            color: OTTColors.preferredServices,
-                                            fontSize: width * 0.035,
-                                            fontWeight: FontWeight.w400,
-                                            fontFamily: 'DM Sans',
-                                          ),
-                                          const SizedBox(width: 4),
-                                          CustomText(
-                                            text: '•',
-                                            color: OTTColors.preferredServices,
-                                            fontSize: width * 0.035,
-                                            fontWeight: FontWeight.w400,
-                                            fontFamily: 'DM Sans',
-                                          ),
-                                          const SizedBox(width: 4),
-                                          CustomText(
-                                            text: '2h 30m',
-                                            color: OTTColors.preferredServices,
-                                            fontSize: width * 0.035,
-                                            fontWeight: FontWeight.w400,
-                                            fontFamily: 'DM Sans',
-                                          ),
-                                        ],
-                                      ),
-                                      SizedBox(height: height * 0.006),
-                                      CustomText(
-                                        text: 'WATCH IT ON HOTSTAR',
-                                        color: OTTColors.buttoncolour,
-                                        fontSize: width * 0.040,
-                                        fontFamily: 'DM Sans',
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ],
+                                        SizedBox(height: height * 0.003),
+                                        Row(
+                                          children: [
+                                            CustomText(
+                                              text: 'Language:',
+                                              color: OTTColors.preferredServices,
+                                              fontSize: width * 0.040,
+                                              fontWeight: FontWeight.w500,
+                                              fontFamily: 'DM Sans',
+                                            ),
+                                            Flexible(
+                                              child: CustomText(
+                                                text: ' ${movie.languageNames.join(", ")}',
+                                                color: OTTColors.preferredServices,
+                                                fontSize: width * 0.035,
+                                                fontWeight: FontWeight.w400,
+                                                fontFamily: 'DM Sans',
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        SizedBox(height: height * 0.006),
+                                        Row(
+                                          children: [
+                                            CustomText(
+                                              text:
+                                                  movie.certificateId.toString(),
+                                              color:
+                                                  OTTColors.preferredServices,
+                                              fontSize: width * 0.035,
+                                              fontWeight: FontWeight.w400,
+                                              fontFamily: 'DM Sans',
+                                            ),
+                                            const SizedBox(width: 6),
+                                            CustomText(
+                                              text: '• ${movie.duration}',
+                                              color:
+                                                  OTTColors.preferredServices,
+                                              fontSize: width * 0.035,
+                                              fontWeight: FontWeight.w400,
+                                              fontFamily: 'DM Sans',
+                                            ),
+                                          ],
+                                        ),
+                                        SizedBox(height: height * 0.006),
+                                        CustomText(
+                                          text: 'WATCH IT ON ${movie.country.toUpperCase()}',
+                                          color: OTTColors.buttoncolour,
+                                          fontSize: width * 0.040,
+                                          fontFamily: 'DM Sans',
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
+                              ],
+                            ),
+                          );
+                        },
+                      );
+                    }),
                   ),
                 ],
               ),
@@ -306,6 +302,5 @@ class _PopularIndianMoviesScreenState extends State<PopularIndianMoviesScreen> {
         ),
       ),
     );
- 
   }
 }

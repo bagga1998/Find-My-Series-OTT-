@@ -1,34 +1,38 @@
 // To parse this JSON data, do
 //
-//     final popularIndianMoviesListModel = popularIndianMoviesListModelFromJson(jsonString);
+//     final popularIndianMoviesDetailsModel = popularIndianMoviesDetailsModelFromJson(jsonString);
 
 import 'dart:convert';
 
-PopularIndianMoviesListModel popularIndianMoviesListModelFromJson(String str) => PopularIndianMoviesListModel.fromJson(json.decode(str));
+PopularIndianMoviesDetailsModel popularIndianMoviesDetailsModelFromJson(String str) => PopularIndianMoviesDetailsModel.fromJson(json.decode(str));
 
-String popularIndianMoviesListModelToJson(PopularIndianMoviesListModel data) => json.encode(data.toJson());
+String popularIndianMoviesDetailsModelToJson(PopularIndianMoviesDetailsModel data) => json.encode(data.toJson());
 
-class PopularIndianMoviesListModel {
+class PopularIndianMoviesDetailsModel {
     bool success;
-    int count;
-    List<Movie> movies;
+    Movie movie;
+    List<dynamic> reviews;
+    String summary;
 
-    PopularIndianMoviesListModel({
+    PopularIndianMoviesDetailsModel({
         required this.success,
-        required this.count,
-        required this.movies,
+        required this.movie,
+        required this.reviews,
+        required this.summary,
     });
 
-    factory PopularIndianMoviesListModel.fromJson(Map<String, dynamic> json) => PopularIndianMoviesListModel(
+    factory PopularIndianMoviesDetailsModel.fromJson(Map<String, dynamic> json) => PopularIndianMoviesDetailsModel(
         success: json["success"],
-        count: json["count"],
-        movies: List<Movie>.from(json["movies"].map((x) => Movie.fromJson(x))),
+        movie: Movie.fromJson(json["movie"]),
+        reviews: List<dynamic>.from(json["reviews"].map((x) => x)),
+        summary: json["summary"],
     );
 
     Map<String, dynamic> toJson() => {
         "success": success,
-        "count": count,
-        "movies": List<dynamic>.from(movies.map((x) => x.toJson())),
+        "movie": movie.toJson(),
+        "reviews": List<dynamic>.from(reviews.map((x) => x)),
+        "summary": summary,
     };
 }
 
