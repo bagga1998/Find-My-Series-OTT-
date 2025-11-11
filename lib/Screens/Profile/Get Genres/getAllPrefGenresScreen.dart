@@ -197,7 +197,7 @@ class _GetOTTPlatformPrefScreenState extends State<GetAllSavedGenresScreen> {
                           itemBuilder: (context, index) {
                             final platform = getAllpreferredGenres.preferredGenresList[index];
                             final name = platform.name ?? "Unknown";
-                            // final iconUrl = platform.iconUrl;
+                            // final iconUrl = platform.iconUrl;  
 
                             return Obx(() {
                               final isSelected =

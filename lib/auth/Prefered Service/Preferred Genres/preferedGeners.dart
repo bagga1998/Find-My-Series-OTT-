@@ -2,7 +2,7 @@
 
 import 'dart:ui';
 import 'package:find_my_series/auth/Prefered%20Service/Preferred%20Genres/preferredGenresController.dart';
-import 'package:find_my_series/widgets/bottomBar.dart';
+import 'package:find_my_series/auth/Question%20&%20Answers/questionsScreen1.dart';
 import 'package:find_my_series/widgets/appBar.dart';
 import 'package:find_my_series/widgets/colors.dart';
 import 'package:find_my_series/widgets/font-styles.dart';
@@ -35,8 +35,11 @@ class _PreferedgenersState extends State<Preferedgeners> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: CustomAppBar(
-        titleText: 'STEPS 3 OF 3',
+        titleText: 'STEPS 3 OF 5',
         leadingText: 'SKIP',
+        leadingOnPressed: () {
+          Get.to(QuestionListScreen());
+        },
         centerTitle: true,
         titleGradient: const LinearGradient(
           colors: [Color(0xFF9B51E0), Color(0xFFBB6BD9)],
@@ -66,7 +69,8 @@ class _PreferedgenersState extends State<Preferedgeners> {
                 fontFamily: 'DM Sans',
                 onTap: () async {
                   await objPreferredGenrescontroller.saveSelectedGenres(context);
-                  Get.to(bottomNavBar());
+                  // Get.to(bottomNavBar());
+                  Get.to(QuestionListScreen());
                 },
               ),
             ),

@@ -75,19 +75,14 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               color: customBackgroundColor,
               gradient: customBackgroundColor == null
                   ? (gradient ??
-                      const LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          Color(0xFF161218),
-                          Color(0xFF2B1D34),
-                        ],
-                      ))
+                        const LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [Color(0xFF161218), Color(0xFF2B1D34)],
+                        ))
                   : null,
               border: borderColor != null
-                  ? Border(
-                      bottom: BorderSide(color: borderColor!, width: 1),
-                    )
+                  ? Border(bottom: BorderSide(color: borderColor!, width: 1))
                   : null,
             ),
           ),
@@ -117,7 +112,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                   child: Text(
                     titleText!,
                     textAlign: TextAlign.center,
-                    style: titleTextStyle ??
+                    style:
+                        titleTextStyle ??
                         const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w600,
@@ -159,7 +155,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                     // 👇 Icon with customizable size
                     if (showBackArrow ?? false)
                       IconButton(
-                        onPressed: leadingOnPressed ??
+                        onPressed:
+                            leadingOnPressed ??
                             () => Navigator.of(context).pop(),
                         icon: Icon(
                           leadingIcon ?? Icons.arrow_back,
@@ -169,16 +166,24 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                       ),
 
                     // 👇 Optional leading text
+                    // 👇 Optional leading text with tap support
                     if (leadingText != null)
-                      Text(
-                        leadingText!,
-                        style: leadingTextStyle ??
-                            const TextStyle(
-                              color: Colors.white,
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
-                              fontFamily: 'DM Sans',
-                            ),
+                      GestureDetector(
+                        onTap: leadingOnPressed,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          child: Text(
+                            leadingText!,
+                            style:
+                                leadingTextStyle ??
+                                const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w600,
+                                  fontFamily: 'DM Sans',
+                                ),
+                          ),
+                        ),
                       ),
                   ],
                 ),

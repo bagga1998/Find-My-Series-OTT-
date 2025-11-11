@@ -2,6 +2,7 @@ import 'package:find_my_series/auth/First%20Welcome/welcomeScreen.dart';
 import 'package:find_my_series/auth/Help%20&%20Support/help&support.dart';
 import 'package:find_my_series/auth/Login%20with%20email/loginScreen.dart';
 import 'package:find_my_series/auth/Singup/Sign%20Up/signupScreen.dart';
+import 'package:find_my_series/widgets/bottomBar.dart';
 import 'package:find_my_series/widgets/button.dart';
 import 'package:find_my_series/widgets/colors.dart';
 import 'package:find_my_series/widgets/font-styles.dart';
@@ -200,7 +201,7 @@ class SocialMediaSignInScreen extends StatelessWidget {
 
                   GestureDetector(
                     onTap: () {
-                      Get.to(const Loginscreen());
+                      Get.to(const bottomNavBar());
                     },
                     child: Center(
                       child: const Text(

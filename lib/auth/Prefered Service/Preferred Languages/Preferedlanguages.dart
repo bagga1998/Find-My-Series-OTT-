@@ -37,8 +37,11 @@ class _PreferedlanguagesState extends State<Preferedlanguages> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: CustomAppBar(
-        titleText: 'STEPS 2 OF 3',
+        titleText: 'STEPS 2 OF 5',
         leadingText: 'SKIP',
+        leadingOnPressed: () {
+          Get.to(Preferedgeners());
+        },
         centerTitle: true,
         titleGradient: const LinearGradient(
           colors: [Color(0xFF9B51E0), Color(0xFFBB6BD9)],
