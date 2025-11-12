@@ -1,4 +1,5 @@
 import 'package:find_my_series/auth/First%20Welcome/welcomeScreen.dart';
+import 'package:find_my_series/auth/SignIn%20with%20social%20media/socialMediaSignInScreen.dart';
 import 'package:find_my_series/widgets/bottomBar.dart';
 import 'package:find_my_series/widgets/colors.dart';
 import 'package:find_my_series/widgets/font-styles.dart';
@@ -6,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../auth/SignIn with social media/socialMediaSignInScreen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -25,23 +25,24 @@ class _SplashScreenState extends State<SplashScreen> {
   Future<void> _navigateNext() async {
     final prefs = await SharedPreferences.getInstance();
 
-    // Check if welcome screen has been shown
-    final seenWelcome = prefs.getBool('welcome_seen') ?? false;
+    // 🔹 Check if onboarding is completed
+    final onboardingCompleted = prefs.getBool('onboarding_completed') ?? false;
 
-    // Check if user is logged in (example: storing a login flag)
-    final isLoggedIn = prefs.getBool('is_logged_in') ?? false;
+    // 🔹 Get saved token
+    final token = prefs.getString('token') ?? '';
 
-    await Future.delayed(const Duration(seconds: 2)); // Splash delay
+    // 🔹 Splash delay
+    await Future.delayed(const Duration(seconds: 2));
 
-    if (!seenWelcome) {
-      // First time → show Welcome Screen
+    if (!onboardingCompleted) {
+      // First time → show Welcome Screen (full onboarding flow)
       Get.off(() => const Welcomescreen());
-    } else if (isLoggedIn) {
-      // Already logged in → go to Home
-      Get.off(() => const bottomNavBar());
-    } else {
-      // Not logged in → go to Social Media Sign-in
+    } else if (token.isEmpty) {
+      // Onboarding done, but user not logged in → go to login
       Get.off(() => const SocialMediaSignInScreen());
+    } else {
+      // Already logged in → go to home
+      Get.off(() => const bottomNavBar());
     }
   }
 
@@ -61,7 +62,10 @@ class _SplashScreenState extends State<SplashScreen> {
                 height: height * 0.15,
               ),
               const SizedBox(height: 20),
-              const CustomText(text: 'Welcom To FMS',color: OTTColors.bottom,)
+              const CustomText(
+                text: 'Welcome To FMS',
+                color: OTTColors.bottom,
+              ),
             ],
           ),
         ),

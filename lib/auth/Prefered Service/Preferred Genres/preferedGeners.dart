@@ -1,14 +1,18 @@
 // ignore_for_file: deprecated_member_use
 
 import 'dart:ui';
+import 'package:find_my_series/auth/Login%20with%20email/loginScreen.dart';
 import 'package:find_my_series/auth/Prefered%20Service/Preferred%20Genres/preferredGenresController.dart';
 import 'package:find_my_series/auth/Question%20&%20Answers/questionsScreen1.dart';
+import 'package:find_my_series/auth/SignIn%20with%20social%20media/socialMediaSignInScreen.dart';
 import 'package:find_my_series/widgets/appBar.dart';
+import 'package:find_my_series/widgets/bottomBar.dart';
 import 'package:find_my_series/widgets/colors.dart';
 import 'package:find_my_series/widgets/font-styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
 
 class Preferedgeners extends StatefulWidget {
@@ -19,7 +23,9 @@ class Preferedgeners extends StatefulWidget {
 }
 
 class _PreferedgenersState extends State<Preferedgeners> {
-  final PreferredGenrescontroller objPreferredGenrescontroller = Get.put(PreferredGenrescontroller());
+  final PreferredGenrescontroller objPreferredGenrescontroller = Get.put(
+    PreferredGenrescontroller(),
+  );
 
   @override
   void initState() {
@@ -68,8 +74,21 @@ class _PreferedgenersState extends State<Preferedgeners> {
                 fontWeight: FontWeight.w600,
                 fontFamily: 'DM Sans',
                 onTap: () async {
-                  await objPreferredGenrescontroller.saveSelectedGenres(context);
-                  // Get.to(bottomNavBar());
+                  await objPreferredGenrescontroller.saveSelectedGenres(
+                    context,
+                  );
+
+                  // Mark onboarding completed
+                  final prefs = await SharedPreferences.getInstance();
+                  await prefs.setBool('onboarding_completed', true);
+
+                  // Navigate according to login status
+                  final token = prefs.getString('token') ?? '';
+                  if (token.isEmpty) {
+                    Get.off(() => const SocialMediaSignInScreen());
+                  } else {
+                    Get.off(() => const bottomNavBar());
+                  }
                   Get.to(QuestionListScreen());
                 },
               ),
@@ -200,11 +219,12 @@ class _PreferedgenersState extends State<Preferedgeners> {
                     ListView.builder(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
-                      itemCount:
-                          objPreferredGenrescontroller.preferredGenresList.length,
+                      itemCount: objPreferredGenrescontroller
+                          .preferredGenresList
+                          .length,
                       itemBuilder: (context, index) {
-                        final lang =
-                            objPreferredGenrescontroller.preferredGenresList[index];
+                        final lang = objPreferredGenrescontroller
+                            .preferredGenresList[index];
                         final isSelected = objPreferredGenrescontroller
                             .selectedGenres
                             .contains(lang.name);
@@ -212,15 +232,21 @@ class _PreferedgenersState extends State<Preferedgeners> {
                         return GestureDetector(
                           onTap: () {
                             objPreferredGenrescontroller.toggleGenres(
-                                lang.name ?? "", lang.id ?? 0);
+                              lang.name ?? "",
+                              lang.id ?? 0,
+                            );
                           },
                           child: Container(
-                            margin:
-                                EdgeInsets.symmetric(vertical: height * 0.008),
+                            margin: EdgeInsets.symmetric(
+                              vertical: height * 0.008,
+                            ),
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(10),
                               child: BackdropFilter(
-                                filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                                filter: ImageFilter.blur(
+                                  sigmaX: 10,
+                                  sigmaY: 10,
+                                ),
                                 child: Container(
                                   width: double.infinity,
                                   padding: EdgeInsets.symmetric(
@@ -253,8 +279,9 @@ class _PreferedgenersState extends State<Preferedgeners> {
                                       const Spacer(),
                                       AnimatedOpacity(
                                         opacity: isSelected ? 1.0 : 0.0,
-                                        duration:
-                                            const Duration(milliseconds: 200),
+                                        duration: const Duration(
+                                          milliseconds: 200,
+                                        ),
                                         child: Icon(
                                           Icons.check,
                                           color: OTTColors.buttoncolour,
