@@ -53,14 +53,21 @@ class _CelebrityDetailsState extends State<CelebrityDetails> {
     },
   ];
 
-  @override
-  void initState() {
-    super.initState();
+@override
+void initState() {
+  super.initState();
+
+  if (widget.celebrityId != null) {
     celebrityDetailsController.getCelebrityDetails(
       context,
       widget.celebrityId!,
     );
+    print("Celebrity ID:- ${widget.celebrityId}");
+  } else {
+    print("⚠️ celebrityId is null — skipping API call.");
   }
+}
+
 
   @override
   Widget build(BuildContext context) {

@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:find_my_series/auth/Question%20&%20Answers/questionsController.dart';
 import 'package:find_my_series/auth/Question%20&%20Answers/questionsScreen2.dart';
 import 'package:find_my_series/widgets/appBar.dart';
 import 'package:find_my_series/widgets/colors.dart';
@@ -15,27 +16,16 @@ class QuestionListScreen extends StatefulWidget {
 }
 
 class _QuestionListScreenState extends State<QuestionListScreen> {
-  // Mock question data
-  final List<Map<String, dynamic>> questionData = [
-    {
-      "question":
-          "What kind of experience do you usually look for while watching something?",
-      "options": [
-        "Thought-provoking",
-        "Light & Fun",
-        "Exciting & Thrilling",
-        "Emotional & Heart-touching",
-        "Visual / Musical",
-      ],
-    },
-    {
-      "question": "Which genre do you prefer the most?",
-      "options": ["Action", "Drama", "Comedy", "Romance", "Documentary"],
-    },
-  ];
+  final QuesController getQuestionController = Get.put(QuesController());
 
   // To store selected answers
   Map<int, String> selectedAnswers = {};
+
+  @override
+  void initState() {
+    super.initState();
+    getQuestionController.fetchQuestions(context);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -88,152 +78,180 @@ class _QuestionListScreenState extends State<QuestionListScreen> {
       ),
       body: Stack(
         children: [
-          // 🔹 Background SVG (same as BornToday)
+          // 🔹 Background SVG (same as your app’s theme)
           Positioned.fill(
             child: SvgPicture.asset('assets/background.svg', fit: BoxFit.cover),
           ),
 
-          // 🔹 Foreground Content
+          // 🔹 Foreground content
           SafeArea(
-            child: SingleChildScrollView(
-              padding: EdgeInsets.symmetric(
-                horizontal: width * 0.04,
-                vertical: height * 0.025,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Header
-                  CustomText(
-                    text:
-                        'To give you a better experience, Answer a few quick questions.',
-                    color: OTTColors.buttoncolour,
-                    fontFamily: 'DM Sans',
-                    fontWeight: FontWeight.w600,
-                    fontSize: 20,
-                  ),
+            child: Obx(() {
+              if (getQuestionController.isLoading.value) {
+                return const Center(
+                  child: CircularProgressIndicator(color: Color(0xFF9B51E0)),
+                );
+              }
 
-                  CustomText(
-                    text: 'Questions(1-9)',
+              if (getQuestionController.questionsList.isEmpty) {
+                return Center(
+                  child: CustomText(
+                    text: "No questions available.",
                     color: OTTColors.preferredServices,
-                    fontFamily: 'DM Sans',
-                    fontWeight: FontWeight.w400,
                     fontSize: 16,
+                    fontWeight: FontWeight.w500,
                   ),
-                  SizedBox(height: height * 0.02),
+                );
+              }
 
-                  // 🔹 Question List
-                  ListView.builder(
-                    physics: const NeverScrollableScrollPhysics(),
-                    shrinkWrap: true,
-                    itemCount: questionData.length,
-                    itemBuilder: (context, index) {
-                      final question = questionData[index];
-                      final String questionText = question["question"];
-                      final List options = question["options"];
+              return SingleChildScrollView(
+                padding: EdgeInsets.symmetric(
+                  horizontal: width * 0.04,
+                  vertical: height * 0.025,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    CustomText(
+                      text:
+                          'To give you a better experience, Answer a few quick questions.',
+                      color: OTTColors.buttoncolour,
+                      fontFamily: 'DM Sans',
+                      fontWeight: FontWeight.w600,
+                      fontSize: 20,
+                    ),
+                    CustomText(
+                      text:
+                          'Questions(1-${getQuestionController.questionsList.length})',
+                      color: OTTColors.preferredServices,
+                      fontFamily: 'DM Sans',
+                      fontWeight: FontWeight.w400,
+                      fontSize: 16,
+                    ),
+                    SizedBox(height: height * 0.02),
 
-                      return Container(
-                        margin: EdgeInsets.only(bottom: height * 0.025),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(0),
-                          child: BackdropFilter(
-                            filter: ImageFilter.blur(sigmaX: 1.0, sigmaY: 1.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                CustomText(
-                                  text: "Question ${index + 1}:",
-                                  color: OTTColors.buttoncolour,
-                                  fontSize: width * 0.045,
-                                  fontWeight: FontWeight.w700,
-                                  fontFamily: "DM Sans",
-                                ),
-                                const SizedBox(height: 8),
-                                CustomText(
-                                  text: questionText,
-                                  color: OTTColors.whiteColor,
-                                  fontSize: width * 0.04,
-                                  fontWeight: FontWeight.w500,
-                                  fontFamily: "DM Sans",
-                                ),
-                                const SizedBox(height: 16),
+                    // 🔹 Question List (API integrated)
+                    ListView.builder(
+                      physics: const NeverScrollableScrollPhysics(),
+                      shrinkWrap: true,
+                      itemCount: getQuestionController.questionsList.length,
+                      itemBuilder: (context, index) {
+                        final question =
+                            getQuestionController.questionsList[index];
 
-                                // Options
-                                ...options.map((option) {
-                                  final bool isSelected =
-                                      selectedAnswers[index] == option;
+                        final questionText = question.questionText ?? '';
+                        final List options = question.surveyOptions ?? [];
 
-                                  return GestureDetector(
-                                    onTap: () {
-                                      setState(() {
-                                        // Toggle behaviour:
-                                        // if already selected -> deselect,
-                                        // otherwise select this option (and implicitly deselect previous)
-                                        if (selectedAnswers[index] == option) {
-                                          selectedAnswers.remove(index);
-                                        } else {
-                                          selectedAnswers[index] = option;
-                                        }
-                                      });
-                                    },
-                                    child: AnimatedContainer(
-                                      duration: const Duration(
-                                        milliseconds: 250,
-                                      ),
-                                      margin: const EdgeInsets.only(bottom: 10),
-                                      padding: const EdgeInsets.symmetric(
-                                        vertical: 14,
-                                        horizontal: 16,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: Colors.white.withOpacity(0.05),
-                                        borderRadius: BorderRadius.circular(12),
-                                        border: Border.all(
-                                          color: Colors.white24,
-                                          width: 1.2,
+                        return Container(
+                          margin: EdgeInsets.only(bottom: height * 0.025),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(0),
+                            child: BackdropFilter(
+                              filter: ImageFilter.blur(
+                                sigmaX: 1.0,
+                                sigmaY: 1.0,
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  CustomText(
+                                    text: "Question ${index + 1}:",
+                                    color: OTTColors.buttoncolour,
+                                    fontSize: width * 0.045,
+                                    fontWeight: FontWeight.w700,
+                                    fontFamily: "DM Sans",
+                                  ),
+                                  const SizedBox(height: 8),
+                                  CustomText(
+                                    text: questionText,
+                                    color: OTTColors.whiteColor,
+                                    fontSize: width * 0.04,
+                                    fontWeight: FontWeight.w500,
+                                    fontFamily: "DM Sans",
+                                  ),
+                                  const SizedBox(height: 16),
+
+                                  // Options from API
+                                  ...options.map((option) {
+                                    final bool isSelected =
+                                        selectedAnswers[index] ==
+                                        option.optionText;
+
+                                    return GestureDetector(
+                                      onTap: () {
+                                        setState(() {
+                                          if (selectedAnswers[index] ==
+                                              option.optionText) {
+                                            selectedAnswers.remove(index);
+                                          } else {
+                                            selectedAnswers[index] =
+                                                option.optionText;
+                                          }
+                                        });
+                                      },
+                                      child: AnimatedContainer(
+                                        duration: const Duration(
+                                          milliseconds: 250,
                                         ),
-                                      ),
-                                      child: Row(
-                                        children: [
-                                          Icon(
-                                            isSelected
-                                                ? Icons.radio_button_checked
-                                                : Icons.radio_button_off,
-                                            color: isSelected
-                                                ? OTTColors.buttoncolour
-                                                : OTTColors.preferredServices,
-                                            size: 22,
+                                        margin: const EdgeInsets.only(
+                                          bottom: 10,
+                                        ),
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 14,
+                                          horizontal: 16,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: Colors.white.withOpacity(0.05),
+                                          borderRadius: BorderRadius.circular(
+                                            12,
                                           ),
-                                          const SizedBox(width: 12),
-                                          Expanded(
-                                            child: CustomText(
-                                            text:  option,
-                                                color: OTTColors.preferredServices,
+                                          border: Border.all(
+                                            color: Colors.white24,
+                                            width: 1.2,
+                                          ),
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            Icon(
+                                              isSelected
+                                                  ? Icons.radio_button_checked
+                                                  : Icons.radio_button_off,
+                                              color: isSelected
+                                                  ? OTTColors.buttoncolour
+                                                  : OTTColors.preferredServices,
+                                              size: 22,
+                                            ),
+                                            const SizedBox(width: 12),
+                                            Expanded(
+                                              child: CustomText(
+                                                text: option
+                                                    .optionText, // ✅ Fixed here
+                                                color:
+                                                    OTTColors.preferredServices,
                                                 fontSize: width * 0.038,
                                                 fontWeight: isSelected
                                                     ? FontWeight.w600
                                                     : FontWeight.w400,
+                                              ),
                                             ),
-                                          ),
-                                        ],
+                                          ],
+                                        ),
                                       ),
-                                    ),
-                                  );
-                                }).toList(),
-                              ],
+                                    );
+                                  }).toList(),
+                                ],
+                              ),
                             ),
                           ),
-                        ),
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              );
+            }),
           ),
         ],
       ),
     );
-  
   }
 }

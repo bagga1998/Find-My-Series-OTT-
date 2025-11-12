@@ -13,8 +13,11 @@ class Logincontroller extends GetxController {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   var isLoading = false.obs;
+  
 
   Future<void> loginCOntroller(BuildContext context) async {
+     final prefs = await SharedPreferences.getInstance();
+   
     try {
       isLoading.value = true;
 
@@ -72,6 +75,7 @@ class Logincontroller extends GetxController {
           "Login successful!",
           OTTColors.buttoncolour,
         );
+      prefs.setBool('is_logged_in',true);
         Get.off(const Preferedservices1());
         emailController.clear();
         passwordController.clear();

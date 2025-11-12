@@ -57,24 +57,24 @@ class GetMovieDetailsController extends GetxController {
         title.value = model.movie.title;
         description.value = model.movie.description ;
         releaseDate.value = model.movie.releaseDate.toString();
-        year.value = model.movie.year?.toString() ?? '';
-        duration.value = model.movie.duration?.trim() ?? '';
-        country.value = model.movie.country?.trim() ?? '';
-        rating.value = model.movie.rating ?? '';
-        views.value = model.movie.views ?? '';
-        videoUrl.value = model.movie.videoUrl ?? '';
-        type.value = model.movie.type?.trim() ?? '';
-        thumbnailUrl.value = model.movie.thumbnailUrl ?? '';
-        trailerUrl.value = model.movie.trailerUrl ?? '';
-        platformName.value = model.movie.platformName ?? '';
-        certificateName.value = model.movie.certificateName ?? '';
-        statusName.value = model.movie.statusName ?? '';
-        summary.value = model.summary ?? '';
+        year.value = model.movie.year.toString();
+        duration.value = model.movie.duration.trim();
+        country.value = model.movie.country.trim();
+        rating.value = model.movie.rating;
+        views.value = model.movie.views;
+        videoUrl.value = model.movie.videoUrl;
+        type.value = model.movie.type.trim();
+        thumbnailUrl.value = model.movie.thumbnailUrl;
+        trailerUrl.value = model.movie.trailerUrl;
+        platformName.value = model.movie.platformName;
+        certificateName.value = model.movie.certificateName;
+        statusName.value = model.movie.statusName;
+        summary.value = model.summary;
 
         // ✅ Assign genres, languages & reviews
-        genreNames.assignAll(model.movie.genreNames ?? []);
-        languageNames.assignAll(model.movie.languageNames ?? []);
-        reviews.assignAll(model.reviews ?? []);
+        genreNames.assignAll(model.movie.genreNames);
+        languageNames.assignAll(model.movie.languageNames);
+        reviews.assignAll(model.reviews);
 
         print('✅ Movie fetched successfully: ${title.value}');
       } else {

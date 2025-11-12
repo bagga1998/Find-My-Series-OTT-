@@ -163,35 +163,4 @@ class Welcomescreen extends StatelessWidget {
       ),
     );
   }
-
-  // Widget _buildButton({
-  //   required String text,
-  //   required Color color,
-  //   required Color textColor,
-  //   required double width,
-  //   required VoidCallback onTap,
-  // }) {
-  //   return SizedBox(
-  //     width: width,
-  //     height: 52,
-  //     child: ElevatedButton(
-  //       onPressed: onTap,
-  //       style: ElevatedButton.styleFrom(
-  //         backgroundColor: color,
-  //         shape: RoundedRectangleBorder(
-  //           borderRadius: BorderRadius.circular(10),
-  //         ),
-  //         elevation: 0,
-  //       ),
-  //       child: Text(
-  //         text,
-  //         style: TextStyle(
-  //           color: textColor,
-  //           fontSize: 16,
-  //           fontWeight: FontWeight.w600,
-  //         ),
-  //       ),
-  //     ),
-  //   );
-  // }
 }

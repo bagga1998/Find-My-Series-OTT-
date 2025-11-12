@@ -51,7 +51,13 @@ class ApiConstants {
 
   // Get Preferred Genres List end-point
   static const String getSavedPreferredPlatforms = "$baseUrls/userplatforms";
+  ////////////////////////////////////////// Preferred Platforms ////////////////////////////////////////////////////
 
+  static const String getQuestions = "$baseUrls/adminquestion/questions";
+  
+
+  ////////////////////////////////////////// Home Page ////////////////////////////////////////////////////
+  static const String homepage = "$baseUrls/homepage";
 
 
 
