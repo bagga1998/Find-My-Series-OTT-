@@ -75,6 +75,7 @@ class Logincontroller extends GetxController {
           "Login successful!",
           OTTColors.buttoncolour,
         );
+        
       prefs.setBool('is_logged_in',true);
         Get.off(const Preferedservices1());
         emailController.clear();
