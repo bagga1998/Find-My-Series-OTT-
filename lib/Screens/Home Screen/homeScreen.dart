@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:find_my_series/Controller/Add%20To%20Favourite/addToFavouriteController.dart';
 import 'package:find_my_series/Controller/Add%20to%20watch%20list/addToWatchListController.dart';
 import 'package:find_my_series/Screens/Born%20Today/bornTodayScreen.dart';
 import 'package:find_my_series/Screens/Celebrity%20Details/celebrityDetails.dart';
@@ -37,6 +38,12 @@ class _HomescreenState extends State<Homescreen> {
     AddToWatchlistController(),
   );
   final HomePageController homePageController = Get.put(HomePageController());
+
+  final AddToFavouriteController objAddToFavouriteController = Get.put(
+    AddToFavouriteController(),
+  );
+
+  final GlobalKey<ScaffoldMessengerState> homeScaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
 
   final List<String> movieImages = [
     'assets/support.png',
@@ -98,7 +105,6 @@ class _HomescreenState extends State<Homescreen> {
     },
   ];
 
-
   final List<Map<String, dynamic>> releasingToday = [
     {
       "title": "Dhadak 2",
@@ -121,7 +127,6 @@ class _HomescreenState extends State<Homescreen> {
       "bookmarked": false,
     },
   ];
-
 
   final List<Map<String, dynamic>> topPickss = [
     {
@@ -146,28 +151,6 @@ class _HomescreenState extends State<Homescreen> {
     },
   ];
 
-  final List<Map<String, dynamic>> nowStreaming = [
-    {
-      "title": "Plat Number 302",
-      // "subtitle": "Tehran",
-      "year": "2025",
-      "rating": "Season 3",
-      "duration": "2h 45m",
-      "score": "8.7",
-      "poster": "assets/preferredServices/NS1.png",
-      "bookmarked": false,
-    },
-    {
-      "title": "Kaal Chakra",
-      // "subtitle": "Hindi Medium",
-      "year": "2022",
-      "rating": "UA 12+",
-      "duration": "2h 41m",
-      "score": "8.5",
-      "poster": "assets/preferredServices/NS2.png",
-      "bookmarked": false,
-    },
-  ];
 
   @override
   void initState() {
@@ -180,435 +163,439 @@ class _HomescreenState extends State<Homescreen> {
     final double width = MediaQuery.of(context).size.width;
     final double height = MediaQuery.of(context).size.height;
 
-    return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: CustomAppBar(
+    return ScaffoldMessenger(
+      key: homeScaffoldMessengerKey,
+      child: Scaffold(
         backgroundColor: Colors.black,
-        elevation: 0,
-        leadingSvg: 'assets/logo.svg',
-        customBackgroundColor: OTTColors.black1,
-        leadingImageHeight: 31,
-        leadingImageWidth: 132,
-        actions: [
-          IconButton(
-            onPressed: () {
-              Get.to(const NotificationScreen());
-            },
-            icon: Icon(
-              Icons.notifications_none_outlined,
-              color: OTTColors.preferredServices,
+        appBar: CustomAppBar(
+           backgroundColor: Colors.transparent,
+          elevation: 0,
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFF161218), Color(0xFF2B1D34)],
+          ),
+          leadingSvg: 'assets/logo.svg',
+          customBackgroundColor: OTTColors.black1,
+          leadingImageHeight: 31,
+          leadingImageWidth: 132,
+          actions: [
+            IconButton(
+              onPressed: () {
+                Get.to(const NotificationScreen());
+              },
+              icon: Icon(
+                Icons.notifications_none_outlined,
+                color: OTTColors.preferredServices,
+              ),
             ),
-          ),
-        ],
-      ),
-      body: Stack(
-        children: [
-          // Background image
-          SvgPicture.asset(
-            'assets/background.svg',
-            width: width,
-            fit: BoxFit.cover,
-          ),
-
-          // Dark overlay for readability
-          Container(
-            width: double.infinity,
-            height: double.infinity,
-            color: Colors.black.withOpacity(0.5),
-          ),
-          Obx(() {
-            if (homePageController.isLoading.value) {
-              return ListView.builder(
-                itemCount: 6, // number of shimmer placeholders
-                itemBuilder: (context, index) {
-                  return Container(
-                    margin: EdgeInsets.only(bottom: height * 0.015),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.05),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.white.withOpacity(0.1)),
-                    ),
-                    child: Shimmer.fromColors(
-                      baseColor: Colors.grey.shade800,
-                      highlightColor: Colors.grey.shade600,
-                      child: Row(
-                        children: [
-                          // Shimmer Image Placeholder
-                          Container(
-                            margin: EdgeInsets.all(8),
-                            height: height * 0.12,
-                            width: height * 0.10,
-                            decoration: BoxDecoration(
-                              color: Colors.white24,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                          SizedBox(width: width * 0.03),
-
-                          // Shimmer Text Section
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Container(
-                                  height: 16,
-                                  width: width * 0.4,
-                                  color: Colors.white24,
-                                ),
-                                SizedBox(height: height * 0.01),
-                                Container(
-                                  height: 14,
-                                  width: width * 0.3,
-                                  color: Colors.white24,
-                                ),
-                                SizedBox(height: height * 0.01),
-                                Container(
-                                  height: 14,
-                                  width: width * 0.25,
-                                  color: Colors.white24,
-                                ),
-                              ],
-                            ),
-                          ),
-                          SizedBox(width: width * 0.03),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              );
-            }
-            return SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  /// Movie Slider
-                  Obx(() {
-                    if (homePageController.topBannersList.isNotEmpty) {
-                      return Column(
-                        children: [
-                          AspectRatio(
-                            aspectRatio: 15 / 20,
-                            child: PageView.builder(
-                              controller: _pageController,
-                              itemCount:
-                                  homePageController.topBannersList.length,
-                              itemBuilder: (context, index) {
-                                final movie =
-                                    homePageController.topBannersList[index];
-                                return _buildMovieCard(
-                                  context,
-                                  width,
-                                  height,
-                                  movie,
-                                );
-                              },
-                            ),
-                          ),
-
-                          const SizedBox(height: 10),
-
-                          /// Page Indicator
-                          Center(
-                            child: SmoothPageIndicator(
-                              controller: _pageController,
-                              count: homePageController.topBannersList.length,
-                              effect: ExpandingDotsEffect(
-                                activeDotColor: OTTColors.buttoncolour,
-                                dotColor: Colors.white24,
-                                dotHeight: 8,
-                                dotWidth: 8,
-                                spacing: 6,
-                                expansionFactor: 3,
-                              ),
-                            ),
-                          ),
-
-                          const SizedBox(height: 30),
-                        ],
-                      );
-                    } else {
-                      return const SizedBox.shrink(); // hides both slider & indicator when empty
-                    }
-                  }),
-
-                  /// Popular Movies Section
-                  _sectionHeader(
-                    "Popular Indian Movies",
-                    "This week's top Indian movies",
-                    onSeeAll: () {
-                      Get.to(PopularIndianMoviesScreen());
-                    },
-                  ),
-                  const SizedBox(height: 10),
-                  _categoryDropdown(width, height),
-                  const SizedBox(height: 20),
-                  _popularIndianMoviesListView(movies, width, height),
-
-                  const SizedBox(height: 30),
-
-                  /// Popular TV Shows Section
-                  _sectionHeader(
-                    "Popular Indian TV Shows",
-                    "This week's top Indian TV Shows",
-                    onSeeAll: () {
-                      Get.to(PopularTvShowsScreen());
-                    },
-                  ),
-                  const SizedBox(height: 10),
-                  _categoryDropdown(width, height),
-                  const SizedBox(height: 20),
-                  _indianTVshowsListView(tvShows, width, height),
-
-                  const SizedBox(height: 30),
-                  if (homePageController.popularCelebritiesList.isNotEmpty) ...[
-                    // Popular Celebrities
-                    _sectionHeader(
-                      "Popular Celebrities",
-                      "This week's top Indian Stars",
-                      onSeeAll: () {
-                        Get.to(PopularCelebritiesScreen());
-                      },
-                    ),
-                    const SizedBox(height: 10),
-                    _celebritiesDropdown(width, height),
-                    const SizedBox(height: 20),
-                    popularCelebritiesListView(
-                      homePageController.popularCelebritiesList
-                          .cast<PopularCelebrity>(),
-                      width,
-                      height,
-                    ),
-                  ],
-
-                  // Releasing Today
-                  const SizedBox(height: 30),
-                  _sectionHeader(
-                    "Releasing Today",
-                    "List of Indian Movies releasing today",
-                    onSeeAll: () {
-                      Get.to(const NewScreen());
-                    },
-                  ),
-                  const SizedBox(height: 20),
-                  _releasingTodayListView(releasingToday, width, height),
-
-                  // Born Today
-                  const SizedBox(height: 30),
-                  _sectionHeader(
-                    "Born Today",
-                    "This week’s top Indian stars",
-                    onSeeAll: () {
-                      Get.to(const BornTodayScreen());
-                    },
-                  ),
-                  const SizedBox(height: 20),
-
-                  /// Born Today Section
-                  /// Born Today Section
-                  Obx(() {
-                    if (homePageController.bornTodayList.isNotEmpty) {
-                      // Convert model list into map list for your card widget
-                      final bornTodayItems = homePageController.bornTodayList
-                          .map((e) {
-                            return {
-                              "id": e.id,
-                              "title": e.name,
-                              "year": e.roleCategory,
-                              "photoUrl": e.photoUrl,
-                              "isFavorite": false,
-                            };
-                          })
-                          .toList();
-
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16.0,
-                              vertical: 8,
-                            ),
-                            child: CustomText(
-                              text: "Born Today",
-                              fontSize: 18,
-                              color: Colors.white,
-                              fontFamily: 'DM Sans',
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          _bornTodayListView(bornTodayItems, width, height),
-                        ],
-                      );
-                    } else {
-                      return const SizedBox.shrink();
-                    }
-                  }),
-
-                  // Top Picks
-                  const SizedBox(height: 30),
-                  _sectionHeader(
-                    "Top Picks for you",
-                    "TV shows and movies just for you",
-                  ),
-                  const SizedBox(height: 10),
-                  _editPreferencesInTopPicksDropdown(width, height),
-                  const SizedBox(height: 20),
-                  _topPicksListView(topPickss, width, height),
-
-                  // Now Streaming
-                  const SizedBox(height: 30),
-                  _sectionHeader(
-                    "Now Streaming",
-                    "TV shows/movies on your favorite OTT",
-                    onSeeAll: () {
-                      Get.to(const NowStramingScreen());
-                    },
-                  ),
-                  const SizedBox(height: 20),
-                  Row(
-                    children: [
-                      Image.asset(
-                        'assets/preferredServices/chaupal.png',
-                        height: height * 0.06,
-                      ),
-                      SizedBox(width: 10),
-                      Image.asset(
-                        'assets/preferredServices/jioHotStar.png',
-                        height: height * 0.06,
-                      ),
-                      SizedBox(width: 10),
-                      Image.asset(
-                        'assets/preferredServices/netflix.png',
-                        height: height * 0.06,
-                      ),
-                      SizedBox(width: 10),
-                      Image.asset(
-                        'assets/preferredServices/sonyLiv.png',
-                        height: height * 0.06,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  Obx(() {
-                    // ✅ Hide UI if list is empty
-                    if (homePageController.nowStreamingList.isEmpty) {
-                      return const SizedBox.shrink();
-                    }
-
-                    // ✅ Convert RxList<dynamic> → List<ComingSoon>
-                    final List<dynamic> nowStreamingItems =
-                        homePageController.nowStreamingList
-                            .map((e) => e as NowStreaming)
-                            .toList();
-
-                    return _nowStreamingListView(
-                      nowStreamingItems,
-                      width,
-                      height,
-                    );
-                  }),
-
-                  // Coming Soon
-                  const SizedBox(height: 30),
-                  _sectionHeader(
-                    "Coming Soon",
-                    "Indian Movies/TV shows coming soon",
-                    onSeeAll: () {
-                      Get.to(const NewScreen());
-                    },
-                  ),
-                  const SizedBox(height: 20),
-
-                  Obx(() {
-                    // ✅ Hide UI if list is empty
-                    if (homePageController.comingSoonList.isEmpty) {
-                      return const SizedBox.shrink();
-                    }
-
-                    // ✅ Convert RxList<dynamic> → List<ComingSoon>
-                    final List<dynamic> comingSoonItems =
-                        homePageController.comingSoonList
-                            .map((e) => e as ComingSoon)
-                            .toList();
-
-                    return _comingSoonListView(
-                      comingSoonItems,
-                      width,
-                      height,
-                    );
-                  }),
-
-                  // Latest News
-                  const SizedBox(height: 30),
-                  _sectionHeader(
-                    "Latest News",
-                    "Top and Hot news for you",
-                    onSeeAll: () {
-                      Get.to(NewsScreen());
-                    },
-                  ),
-                  const SizedBox(height: 20),
-                  GestureDetector(
-                    onTap: () {
-                      Get.to(const NewsScreen());
-                    },
-                    child: Container(
+          ],
+        ),
+        body: Stack(
+          children: [
+            // Background image
+            SvgPicture.asset(
+              'assets/background.svg',
+              width: width,
+              fit: BoxFit.cover,
+            ),
+      
+            // Dark overlay for readability
+            Container(
+              width: double.infinity,
+              height: double.infinity,
+              color: Colors.black.withOpacity(0.5),
+            ),
+            Obx(() {
+              if (homePageController.isLoading.value) {
+                return ListView.builder(
+                  itemCount: 6, // number of shimmer placeholders
+                  itemBuilder: (context, index) {
+                    return Container(
+                      margin: EdgeInsets.only(bottom: height * 0.015),
                       decoration: BoxDecoration(
-                        border: Border.all(
-                          color: Colors.white.withOpacity(0.2),
-                          width: 1,
-                        ),
+                        color: Colors.white.withOpacity(0.05),
                         borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.white.withOpacity(0.1)),
                       ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
+                      child: Shimmer.fromColors(
+                        baseColor: Colors.grey.shade800,
+                        highlightColor: Colors.grey.shade600,
                         child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
                           children: [
-                            ClipRRect(
-                              borderRadius: BorderRadiusGeometry.circular(7),
-                              child: Image.asset(
-                                'assets/movie1.png',
-                                height: Get.height * 0.2,
+                            // Shimmer Image Placeholder
+                            Container(
+                              margin: EdgeInsets.all(8),
+                              height: height * 0.12,
+                              width: height * 0.10,
+                              decoration: BoxDecoration(
+                                color: Colors.white24,
+                                borderRadius: BorderRadius.circular(12),
                               ),
                             ),
-                            const SizedBox(width: 5),
+                            SizedBox(width: width * 0.03),
+      
+                            // Shimmer Text Section
                             Expanded(
                               child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  CustomText(
-                                    text:
-                                        'Maharani” Renewed for Season 4, Huma Qureshi Returns as Rani Bharti',
-                                    fontFamily: 'DM Sans',
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                    color: OTTColors.white,
+                                  Container(
+                                    height: 16,
+                                    width: width * 0.4,
+                                    color: Colors.white24,
                                   ),
-
-                                  CustomText(
-                                    text:
-                                        'Political drama Maharani is coming back with its fourth season, with Huma Qureshi reprising the powerful role',
-                                    fontFamily: 'DM Sans',
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w300,
-                                    maxLines: 5,
-                                    color: OTTColors.white,
+                                  SizedBox(height: height * 0.01),
+                                  Container(
+                                    height: 14,
+                                    width: width * 0.3,
+                                    color: Colors.white24,
+                                  ),
+                                  SizedBox(height: height * 0.01),
+                                  Container(
+                                    height: 14,
+                                    width: width * 0.25,
+                                    color: Colors.white24,
                                   ),
                                 ],
                               ),
                             ),
+                            SizedBox(width: width * 0.03),
                           ],
                         ),
                       ),
+                    );
+                  },
+                );
+              }
+              return SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    /// Movie Slider
+                    Obx(() {
+                      if (homePageController.topBannersList.isNotEmpty) {
+                        return Column(
+                          children: [
+                            AspectRatio(
+                              aspectRatio: 15 / 20,
+                              child: PageView.builder(
+                                controller: _pageController,
+                                itemCount:
+                                    homePageController.topBannersList.length,
+                                itemBuilder: (context, index) {
+                                  final movie =
+                                      homePageController.topBannersList[index];
+                                  return _buildMovieCard(
+                                    context,
+                                    width,
+                                    height,
+                                    movie,
+                                  );
+                                },
+                              ),
+                            ),
+      
+                            const SizedBox(height: 10),
+      
+                            /// Page Indicator
+                            Center(
+                              child: SmoothPageIndicator(
+                                controller: _pageController,
+                                count: homePageController.topBannersList.length,
+                                effect: ExpandingDotsEffect(
+                                  activeDotColor: OTTColors.buttoncolour,
+                                  dotColor: Colors.white24,
+                                  dotHeight: 8,
+                                  dotWidth: 8,
+                                  spacing: 6,
+                                  expansionFactor: 3,
+                                ),
+                              ),
+                            ),
+      
+                            const SizedBox(height: 30),
+                          ],
+                        );
+                      } else {
+                        return const SizedBox.shrink(); // hides both slider & indicator when empty
+                      }
+                    }),
+      
+                    /// Popular Movies Section
+                    _sectionHeader(
+                      "Popular Indian Movies",
+                      "This week's top Indian movies",
+                      onSeeAll: () {
+                        Get.to(PopularIndianMoviesScreen());
+                      },
                     ),
-                  ),
-                ],
-              ),
-            );
-          }),
-        ],
+                    const SizedBox(height: 10),
+                    _categoryDropdown(width, height),
+                    const SizedBox(height: 20),
+                    _popularIndianMoviesListView(movies, width, height),
+      
+                    const SizedBox(height: 30),
+      
+                    /// Popular TV Shows Section
+                    _sectionHeader(
+                      "Popular Indian TV Shows",
+                      "This week's top Indian TV Shows",
+                      onSeeAll: () {
+                        Get.to(PopularTvShowsScreen());
+                      },
+                    ),
+                    const SizedBox(height: 10),
+                    _categoryDropdown(width, height),
+                    const SizedBox(height: 20),
+                    _indianTVshowsListView(tvShows, width, height),
+      
+                    const SizedBox(height: 30),
+                    if (homePageController.popularCelebritiesList.isNotEmpty) ...[
+                      // Popular Celebrities
+                      _sectionHeader(
+                        "Popular Celebrities",
+                        "This week's top Indian Stars",
+                        onSeeAll: () {
+                          Get.to(PopularCelebritiesScreen());
+                        },
+                      ),
+                      const SizedBox(height: 10),
+                      _celebritiesDropdown(width, height),
+                      const SizedBox(height: 20),
+                      popularCelebritiesListView(
+                        homePageController.popularCelebritiesList
+                            .cast<PopularCelebrity>(),
+                        width,
+                        height,
+                      ),
+                    ],
+      
+                    // Releasing Today
+                    const SizedBox(height: 30),
+                    _sectionHeader(
+                      "Releasing Today",
+                      "List of Indian Movies releasing today",
+                      onSeeAll: () {
+                        Get.to(const NewScreen());
+                      },
+                    ),
+                    const SizedBox(height: 20),
+                    _releasingTodayListView(releasingToday, width, height),
+      
+                    // Born Today
+                    const SizedBox(height: 30),
+                    _sectionHeader(
+                      "Born Today",
+                      "This week’s top Indian stars",
+                      onSeeAll: () {
+                        Get.to(const BornTodayScreen());
+                      },
+                    ),
+                    const SizedBox(height: 20),
+      
+                    /// Born Today Section
+                    /// Born Today Section
+                    Obx(() {
+                      if (homePageController.bornTodayList.isNotEmpty) {
+                        // Convert model list into map list for your card widget
+                        final bornTodayItems = homePageController.bornTodayList
+                            .map((e) {
+                              return {
+                                "id": e.id,
+                                "title": e.name,
+                                "year": e.roleCategory,
+                                "photoUrl": e.photoUrl,
+                                "isFavorite": false,
+                              };
+                            })
+                            .toList();
+      
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16.0,
+                                vertical: 8,
+                              ),
+                              child: CustomText(
+                                text: "Born Today",
+                                fontSize: 18,
+                                color: Colors.white,
+                                fontFamily: 'DM Sans',
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            _bornTodayListView(bornTodayItems, width, height),
+                          ],
+                        );
+                      } else {
+                        return const SizedBox.shrink();
+                      }
+                    }),
+      
+                    // Top Picks
+                    const SizedBox(height: 30),
+                    _sectionHeader(
+                      "Top Picks for you",
+                      "TV shows and movies just for you",
+                    ),
+                    const SizedBox(height: 10),
+                    _editPreferencesInTopPicksDropdown(width, height),
+                    const SizedBox(height: 20),
+                    _topPicksListView(topPickss, width, height),
+      
+                    // Now Streaming
+                    const SizedBox(height: 30),
+                    _sectionHeader(
+                      "Now Streaming",
+                      "TV shows/movies on your favorite OTT",
+                      onSeeAll: () {
+                        Get.to(const NowStramingScreen());
+                      },
+                    ),
+                    const SizedBox(height: 20),
+                    Row(
+                      children: [
+                        Image.asset(
+                          'assets/preferredServices/chaupal.png',
+                          height: height * 0.06,
+                        ),
+                        SizedBox(width: 10),
+                        Image.asset(
+                          'assets/preferredServices/jioHotStar.png',
+                          height: height * 0.06,
+                        ),
+                        SizedBox(width: 10),
+                        Image.asset(
+                          'assets/preferredServices/netflix.png',
+                          height: height * 0.06,
+                        ),
+                        SizedBox(width: 10),
+                        Image.asset(
+                          'assets/preferredServices/sonyLiv.png',
+                          height: height * 0.06,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    Obx(() {
+                      // ✅ Hide UI if list is empty
+                      if (homePageController.nowStreamingList.isEmpty) {
+                        return const SizedBox.shrink();
+                      }
+      
+                      // ✅ Convert RxList<dynamic> → List<ComingSoon>
+                      final List<dynamic> nowStreamingItems = homePageController
+                          .nowStreamingList
+                          .map((e) => e as NowStreaming)
+                          .toList();
+      
+                      return _nowStreamingListView(
+                        nowStreamingItems,
+                        width,
+                        height,
+                      );
+                    }),
+      
+                    // Coming Soon
+                    const SizedBox(height: 30),
+                    _sectionHeader(
+                      "Coming Soon",
+                      "Indian Movies/TV shows coming soon",
+                      onSeeAll: () {
+                        Get.to(const NewScreen());
+                      },
+                    ),
+                    const SizedBox(height: 20),
+      
+                    Obx(() {
+                      // ✅ Hide UI if list is empty
+                      if (homePageController.comingSoonList.isEmpty) {
+                        return const SizedBox.shrink();
+                      }
+      
+                      // ✅ Convert RxList<dynamic> → List<ComingSoon>
+                      final List<dynamic> comingSoonItems = homePageController
+                          .comingSoonList
+                          .map((e) => e as ComingSoon)
+                          .toList();
+      
+                      return _comingSoonListView(comingSoonItems, width, height);
+                    }),
+      
+                    // Latest News
+                    const SizedBox(height: 30),
+                    _sectionHeader(
+                      "Latest News",
+                      "Top and Hot news for you",
+                      onSeeAll: () {
+                        Get.to(NewsScreen());
+                      },
+                    ),
+                    const SizedBox(height: 20),
+                    GestureDetector(
+                      onTap: () {
+                        Get.to(const NewsScreen());
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: Colors.white.withOpacity(0.2),
+                            width: 1,
+                          ),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadiusGeometry.circular(7),
+                                child: Image.asset(
+                                  'assets/movie1.png',
+                                  height: Get.height * 0.2,
+                                ),
+                              ),
+                              const SizedBox(width: 5),
+                              Expanded(
+                                child: Column(
+                                  children: [
+                                    CustomText(
+                                      text:
+                                          'Maharani” Renewed for Season 4, Huma Qureshi Returns as Rani Bharti',
+                                      fontFamily: 'DM Sans',
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                      color: OTTColors.white,
+                                    ),
+      
+                                    CustomText(
+                                      text:
+                                          'Political drama Maharani is coming back with its fourth season, with Huma Qureshi reprising the powerful role',
+                                      fontFamily: 'DM Sans',
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w300,
+                                      maxLines: 5,
+                                      color: OTTColors.white,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }),
+          ],
+        ),
       ),
     );
   }
@@ -1243,28 +1230,41 @@ class _HomescreenState extends State<Homescreen> {
                       SizedBox(height: height * 0.006),
 
                       // ❤️ Favourite Row
-                      Row(
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              print("Favourite tapped for: ${item.name}");
-                            },
-                            child: Icon(
-                              Icons.favorite_border,
-                              color: Colors.white70,
-                              size: width * 0.060,
-                            ),
+                      Obx(() {
+                        bool isFavourite =
+                            objAddToFavouriteController.favouriteMap[item
+                                .id] ??
+                            false;
+
+                        return GestureDetector(
+                          onTap: () async {
+                            await objAddToFavouriteController
+                                .addToFavouriteFunction(item.id, context);
+                          },
+                          child: Row(
+                            children: [
+                              Icon(
+                                isFavourite
+                                    ? Icons.favorite
+                                    : Icons.favorite_border,
+                                color: isFavourite
+                                    ? Colors.redAccent
+                                    : Colors.white70,
+                                size: 18,
+                              ),
+                              SizedBox(width: width * 0.015),
+                              CustomText(
+                                text: isFavourite
+                                    ? 'Added to Favorites'
+                                    : 'Add to Favorites',
+                                color: Colors.white70,
+                                fontSize: width * 0.034,
+                                fontFamily: 'DM Sans',
+                              ),
+                            ],
                           ),
-                          const Spacer(),
-                          CustomText(
-                            text: 'Add to Favourite',
-                            fontSize: 13,
-                            fontFamily: 'DM Sans',
-                            color: OTTColors.background,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ],
-                      ),
+                        );
+                      }),
                     ],
                   ),
                 ),
@@ -1477,7 +1477,9 @@ class _HomescreenState extends State<Homescreen> {
               padding: const EdgeInsets.all(8.0),
               child: GestureDetector(
                 onTap: () {
-                  Get.to(() => CelebrityDetails(celebrityId: item['id'].toString()));
+                  Get.to(
+                    () => CelebrityDetails(celebrityId: item['id'].toString()),
+                  );
                 },
                 child: Container(
                   height: height * 0.23,
@@ -1843,7 +1845,7 @@ class _HomescreenState extends State<Homescreen> {
                           const SizedBox(width: 4),
                           Text(
                             item.certificate.name,
-                            style: TextStyle( 
+                            style: TextStyle(
                               color: Colors.grey[300],
                               fontSize: 12,
                             ),
@@ -1902,162 +1904,154 @@ class _HomescreenState extends State<Homescreen> {
     );
   }
 
-// Coming Soon
+  // Coming Soon
 
-Widget _comingSoonListView(
-  List<dynamic> items,
-  double width,
-  double height,
-) {
-  return SizedBox(
-    height: height * 0.43,
-    child: ListView.builder(
-      scrollDirection: Axis.horizontal,
-      itemCount: items.length,
-      itemBuilder: (context, index) {
-        final item = items[index] as ComingSoon;
-        return Container(
-          margin: EdgeInsets.only(right: index == items.length - 1 ? 0 : 16),
-          child: _comingSoonCardDesign(item, width, height),
-        );
-      },
-    ),
-  );
-}
-
-Widget _comingSoonCardDesign(
-  ComingSoon item,
-  double width,
-  double height,
-) {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Padding(
-        padding: const EdgeInsets.only(left: 1.0),
-        child: CustomText(
-          text: DateFormat('MMM d').format(DateTime.now()),
-          color: OTTColors.preferredServices,
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
-        ),
+  Widget _comingSoonListView(List<dynamic> items, double width, double height) {
+    return SizedBox(
+      height: height * 0.43,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: items.length,
+        itemBuilder: (context, index) {
+          final item = items[index] as ComingSoon;
+          return Container(
+            margin: EdgeInsets.only(right: index == items.length - 1 ? 0 : 16),
+            child: _comingSoonCardDesign(item, width, height),
+          );
+        },
       ),
-      Container(
-        width: width * 0.43,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: Colors.white.withOpacity(0.2), width: 1),
+    );
+  }
+
+  Widget _comingSoonCardDesign(ComingSoon item, double width, double height) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 1.0),
+          child: CustomText(
+            text: DateFormat('MMM d').format(DateTime.now()),
+            color: OTTColors.preferredServices,
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+          ),
         ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(22),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Poster
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: GestureDetector(
-                  onTap: () {
-                    Get.to(MovieDetailsScreen(movieId: item.id.toString()));
-                  },
-                  child: Container(
-                    height: height * 0.23,
-                    width: MediaQuery.of(context).size.width / 0.5,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(16),
-                      image: DecorationImage(
-                        image: NetworkImage(item.thumbnailUrl),
-                        fit: BoxFit.fill,
+        Container(
+          width: width * 0.43,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: Colors.white.withOpacity(0.2), width: 1),
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(22),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Poster
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: GestureDetector(
+                    onTap: () {
+                      Get.to(MovieDetailsScreen(movieId: item.id.toString()));
+                    },
+                    child: Container(
+                      height: height * 0.23,
+                      width: MediaQuery.of(context).size.width / 0.5,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
+                        image: DecorationImage(
+                          image: NetworkImage(item.thumbnailUrl),
+                          fit: BoxFit.fill,
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
 
-              // Info with Glassmorphism
-              ClipRRect(
-                borderRadius: BorderRadius.circular(20),
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 1, sigmaY: 1),
-                  child: Container(
-                    width: width * 0.9,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 12,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          item.title,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
+                // Info with Glassmorphism
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 1, sigmaY: 1),
+                    child: Container(
+                      width: width * 0.9,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 12,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            item.title,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(height: 4),
-                        Row(
-                          children: [
-                            Text(
-                              DateFormat('yyyy').format(item.releaseDate),
-                              style: TextStyle(
+                          const SizedBox(height: 4),
+                          Row(
+                            children: [
+                              Text(
+                                DateFormat('yyyy').format(item.releaseDate),
+                                style: TextStyle(
+                                  color: OTTColors.preferredServices,
+                                  fontSize: 15,
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              const Text(
+                                '•',
+                                style: TextStyle(
+                                  color: OTTColors.preferredServices,
+                                  fontSize: 15,
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                item.certificate.name,
+                                style: TextStyle(
+                                  color: OTTColors.preferredServices,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 3),
+                          Row(
+                            children: [
+                              CustomText(
+                                text: item.platform.name,
                                 color: OTTColors.preferredServices,
                                 fontSize: 15,
                               ),
-                            ),
-                            const SizedBox(width: 4),
-                            const Text(
-                              '•',
-                              style: TextStyle(
-                                color: OTTColors.preferredServices,
-                                fontSize: 15,
+                              const Spacer(),
+                              GestureDetector(
+                                onTap: () {
+                                  // If you want to toggle bookmark in the future, handle it with controller.
+                                },
+                                child: Icon(
+                                  Icons.bookmark_border,
+                                  color: OTTColors.preferredServices,
+                                ),
                               ),
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              item.certificate.name,
-                              style: TextStyle(
-                                color: OTTColors.preferredServices,
-                                fontSize: 12,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 3),
-                        Row(
-                          children: [
-                            CustomText(
-                              text: item.platform.name,
-                              color: OTTColors.preferredServices,
-                              fontSize: 15,
-                            ),
-                            const Spacer(),
-                            GestureDetector(
-                              onTap: () {
-                                // If you want to toggle bookmark in the future, handle it with controller.
-                              },
-                              child: Icon(
-                                Icons.bookmark_border,
-                                color: OTTColors.preferredServices,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
-      ),
-    ],
-  );
-}
+      ],
+    );
+  }
 
   // ================= MOVIE CARD WIDGET =================
   Widget _buildMovieCard(

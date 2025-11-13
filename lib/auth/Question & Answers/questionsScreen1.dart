@@ -1,12 +1,16 @@
 import 'dart:ui';
 import 'package:find_my_series/auth/Question%20&%20Answers/questionsController.dart';
 import 'package:find_my_series/auth/Question%20&%20Answers/questionsScreen2.dart';
+import 'package:find_my_series/auth/Question%20&%20Answers/saveQuestionsController.dart';
+import 'package:find_my_series/auth/SignIn%20with%20social%20media/socialMediaSignInScreen.dart';
 import 'package:find_my_series/widgets/appBar.dart';
+import 'package:find_my_series/widgets/bottomBar.dart';
 import 'package:find_my_series/widgets/colors.dart';
 import 'package:find_my_series/widgets/font-styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class QuestionListScreen extends StatefulWidget {
   const QuestionListScreen({super.key});
@@ -17,8 +21,9 @@ class QuestionListScreen extends StatefulWidget {
 
 class _QuestionListScreenState extends State<QuestionListScreen> {
   final QuesController getQuestionController = Get.put(QuesController());
+  final SurveyController saveSurveyQuestions = Get.put(SurveyController());
 
-  // To store selected answers
+  // To store selected answers: key -> question_id, value -> selected_option_id
   Map<int, String> selectedAnswers = {};
 
   @override
@@ -69,8 +74,46 @@ class _QuestionListScreenState extends State<QuestionListScreen> {
                 fontWeight: FontWeight.w600,
                 fontFamily: 'DM Sans',
                 onTap: () async {
-                  Get.to(QuestionsScreen2());
-                },
+  if (selectedAnswers.isEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: CustomText(
+          text: "Please select at least one answer!",
+          color: OTTColors.whiteColor,
+          fontFamily: "DM Sans",
+        ),
+        backgroundColor: OTTColors.black1,
+      ),
+    );
+    return;
+  }
+
+  // ✅ Wait for API submission
+  final success = await saveSurveyQuestions.submitAnswers(context, selectedAnswers);
+if (success) {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setBool('onboarding_completed', true);
+
+  final token = prefs.getString('token') ?? '';
+  if (token.isEmpty) {
+    Get.off(() => const SocialMediaSignInScreen());
+  } else {
+    Get.off(() => const bottomNavBar());
+  }
+} else {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: CustomText(
+          text: "Failed to save answers. Please try again.",
+          color: OTTColors.whiteColor,
+          fontFamily: "DM Sans",
+        ),
+        backgroundColor: OTTColors.black1,
+      ),
+    );
+  }
+}
+
               ),
             ),
           ),
@@ -139,6 +182,7 @@ class _QuestionListScreenState extends State<QuestionListScreen> {
                             getQuestionController.questionsList[index];
 
                         final questionText = question.questionText ?? '';
+                        final int questionId = question.id ?? index + 1;
                         final List options = question.surveyOptions ?? [];
 
                         return Container(
@@ -172,38 +216,40 @@ class _QuestionListScreenState extends State<QuestionListScreen> {
 
                                   // Options from API
                                   ...options.map((option) {
+                                    final int optionId = option.id ?? 0;
                                     final bool isSelected =
-                                        selectedAnswers[index] ==
-                                        option.optionText;
+                                        selectedAnswers[questionId] ==
+                                            optionId.toString();
 
                                     return GestureDetector(
                                       onTap: () {
                                         setState(() {
-                                          if (selectedAnswers[index] ==
-                                              option.optionText) {
-                                            selectedAnswers.remove(index);
+                                          if (selectedAnswers[questionId] ==
+                                              optionId.toString()) {
+                                            selectedAnswers.remove(questionId);
                                           } else {
-                                            selectedAnswers[index] =
-                                                option.optionText;
+                                            selectedAnswers[questionId] =
+                                                optionId.toString();
                                           }
+
+                                          // ✅ Print selected IDs for debugging
+                                          print(
+                                              "✅ Selected -> Question ID: $questionId | Option ID: $optionId");
                                         });
                                       },
                                       child: AnimatedContainer(
-                                        duration: const Duration(
-                                          milliseconds: 250,
-                                        ),
-                                        margin: const EdgeInsets.only(
-                                          bottom: 10,
-                                        ),
+                                        duration:
+                                            const Duration(milliseconds: 250),
+                                        margin:
+                                            const EdgeInsets.only(bottom: 10),
                                         padding: const EdgeInsets.symmetric(
                                           vertical: 14,
                                           horizontal: 16,
                                         ),
                                         decoration: BoxDecoration(
                                           color: Colors.white.withOpacity(0.05),
-                                          borderRadius: BorderRadius.circular(
-                                            12,
-                                          ),
+                                          borderRadius:
+                                              BorderRadius.circular(12),
                                           border: Border.all(
                                             color: Colors.white24,
                                             width: 1.2,
@@ -223,8 +269,7 @@ class _QuestionListScreenState extends State<QuestionListScreen> {
                                             const SizedBox(width: 12),
                                             Expanded(
                                               child: CustomText(
-                                                text: option
-                                                    .optionText, // ✅ Fixed here
+                                                text: option.optionText ?? '',
                                                 color:
                                                     OTTColors.preferredServices,
                                                 fontSize: width * 0.038,

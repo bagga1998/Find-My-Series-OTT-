@@ -78,17 +78,7 @@ class _PreferedgenersState extends State<Preferedgeners> {
                     context,
                   );
 
-                  // Mark onboarding completed
-                  final prefs = await SharedPreferences.getInstance();
-                  await prefs.setBool('onboarding_completed', true);
-
-                  // Navigate according to login status
-                  final token = prefs.getString('token') ?? '';
-                  if (token.isEmpty) {
-                    Get.off(() => const SocialMediaSignInScreen());
-                  } else {
-                    Get.off(() => const bottomNavBar());
-                  }
+                 
                   Get.to(QuestionListScreen());
                 },
               ),
